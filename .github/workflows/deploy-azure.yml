@@ -1,0 +1,33 @@
+name: Deploy to Azure the 'dev' version
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
+    - name: Deploy to Azure
+      run: |
+        az deployment group create \
+          --resource-group SaasPatternAzure-rg \
+          --name deploy-dev \
+          --template-file infra/bicep/deployment.bicep \
+          --parameters \
+              hashSecret=${{ secrets.HASH_SECRET }} \
+              jwtSecret=${{ secrets.JWT_SECRET }} \
+              databaseUrl=${{ secrets.DATABASE_URL }} \
+              registryPassword=${{ secrets.READ_PACKAGE_PAT }} \
+              imageUrl='ghcr.io/${{ github.repository }}:latest' \
+          --no-wait
+  
+    - name: Azure Logout
+      run: az logout
+      if: always()
