@@ -7,19 +7,13 @@ import { Box, Button } from "@suid/material";
 import Review from "./Review";
 import Confirmation from "./Confirmation";
 import { A } from "@solidjs/router";
-
-interface ProjectInput {
-  project_name?: string;
-  project_description?: string;
-  project_objective?: string;
-  project_stakeholders?: string;
-}
+import { ProjectRequest } from "@/common/model.ts";
 
 type WizardEventType = "NEXT" | "PREV" | "SUBMIT";
 
 interface WizardEvent {
   type: WizardEventType;
-  data?: Partial<ProjectInput>;
+  data?: Partial<ProjectRequest>;
 }
 
 const STORAGE_KEY = "workflow-state";
@@ -38,9 +32,9 @@ interface FormButtonProps {
 const FormButton: Component<FormButtonProps> = (props) => {
   return (
     <div class="fjs-container">
-      <button 
-        type="submit" 
-        class="fjs-button" 
+      <button
+        type="submit"
+        class="fjs-button"
         onClick={() => props.action()}
         disabled={props.disabled}
       >
@@ -92,7 +86,7 @@ const WizardComponent: Component = () => {
   const ErrorSubmittingProject = () => {
     localStorage.removeItem(STORAGE_KEY);
     return (
-      <div style={{ color: '#ef4444', 'margin-bottom': '1rem' }}>
+      <div style={{ color: "#ef4444", "margin-bottom": "1rem" }}>
         There is an error while submitting your project. Please try again.
         <pre>{JSON.stringify(actor.getPersistedSnapshot(), null, 4)}</pre>
         <br />
@@ -106,11 +100,11 @@ const WizardComponent: Component = () => {
     const isSubmitting = state.matches("submitting");
 
     return (
-        <FormButton
-          label={isSubmitting ? "Submitting..." : "Submit"}
-          action={() => triggerEvent({ type: "SUBMIT" }, false)}
-          disabled={isSubmitting}
-        />
+      <FormButton
+        label={isSubmitting ? "Submitting..." : "Submit"}
+        action={() => triggerEvent({ type: "SUBMIT" }, false)}
+        disabled={isSubmitting}
+      />
     );
   };
 

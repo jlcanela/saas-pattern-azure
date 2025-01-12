@@ -34,6 +34,9 @@ dependencies:
     version: 5.19.1
 
 devDependencies:
+  '@deno/vite-plugin':
+    specifier: ^1.0.2
+    version: 1.0.2(vite@6.0.7)
   typescript:
     specifier: ^5.7.2
     version: 5.7.2
@@ -417,6 +420,14 @@ packages:
       style-mod: 4.1.2
       w3c-keyname: 2.2.8
     dev: false
+
+  /@deno/vite-plugin@1.0.2(vite@6.0.7):
+    resolution: {integrity: sha512-ZaC5W1yCb1xdRURU5qHFHrxZABr1tC68tS73/YhXUUbe9nuytCV4CG/dpLxMkxS64Fs3YwcqEz2k1eAqE9W5SQ==}
+    peerDependencies:
+      vite: 5.x || 6.x
+    dependencies:
+      vite: 6.0.7
+    dev: true
 
   /@digichanges/solid-wizard@2.0.1:
     resolution: {integrity: sha512-ojQbGyiZEHKudoI+4Q5iSwB+tnPs0I8KqOPJc24rdM6QyOSApC1T1z9H/Wls4xIbLJeAPDfYVhnvKlyYUNGwRg==}

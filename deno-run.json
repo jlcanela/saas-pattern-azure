@@ -1,0 +1,13 @@
+{
+  "workspace": ["./apps/api", "./packages/common"],
+  "imports": {
+    "@hono/hono": "jsr:@hono/hono@^4.6.16",
+    "@/common/": "./packages/common/"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "solid-js",
+    "lib": ["DOM", "DOM.Iterable", "ESNext", "deno.ns"]
+  },
+  "nodeModulesDir": "auto"
+}
