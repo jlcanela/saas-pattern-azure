@@ -72,8 +72,8 @@ Run locally
 ```
 az deployment group create \
     --mode Complete \
-    --resource-group <resource-group> \
-    --template-file delete.bicep \
+    --resource-group SaasPatternAzure-rg \
+    --template-file infra/bicep/delete.bicep \
     --no-wait
 ```
 

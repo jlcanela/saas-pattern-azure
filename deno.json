@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno task build & deno task dev:api & deno task dev:vite",
+    "dev": "deno task build && deno task dev:api & deno task dev:vite",
     "dev:api": "deno run --allow-env --allow-net --allow-read backend/main.ts",
     "dev:vite": "deno run -A npm:vite",
     "build": "deno run -A npm:vite build",
@@ -12,11 +12,13 @@
     }
   },
   "imports": {
-    "@hono/hono": "jsr:@hono/hono@^4.6.16"
+    "@hono/hono": "jsr:@hono/hono@^4.6.16",
+    "@hono/hono/middleware": "jsr:@hono/hono/middleware@^4.6.16",
+    "@hono/hono/context": "jsr:@hono/hono/context@^4.6.16"
   },
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "solid-js",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"]
+    "lib": ["DOM", "DOM.Iterable", "ESNext", "deno.ns"]
   }
 }

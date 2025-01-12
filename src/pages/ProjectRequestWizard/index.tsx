@@ -3,21 +3,57 @@ import { useActor } from "@xstate/solid";
 import { Match, Switch } from "solid-js";
 import { wizardMachine } from "./WizardMachine";
 import BpmnForm, { getForm, hasErrors } from "../../components/Form";
+import { Box, Button } from "@suid/material";
+import Review from "./Review";
+import Confirmation from "./Confirmation";
+import { A } from "@solidjs/router";
 
-const STORAGE_KEY = 'workflow-state';
+interface ProjectInput {
+  project_name?: string;
+  project_description?: string;
+  project_objective?: string;
+  project_stakeholders?: string;
+}
+
+type WizardEventType = "NEXT" | "PREV" | "SUBMIT";
 
 interface WizardEvent {
-  type: string;
-  data?: Record<string, any>;
+  type: WizardEventType;
+  data?: Partial<ProjectInput>;
 }
+
+const STORAGE_KEY = "workflow-state";
 
 interface FormData {
   data: Record<string, any>;
   errors?: Record<string, any>;
 }
 
+interface FormButtonProps {
+  label: string;
+  action: () => void;
+  disabled?: boolean;
+}
+
+const FormButton: Component<FormButtonProps> = (props) => {
+  return (
+    <div class="fjs-container">
+      <button 
+        type="submit" 
+        class="fjs-button" 
+        onClick={() => props.action()}
+        disabled={props.disabled}
+      >
+        {props.label}
+      </button>
+    </div>
+  );
+};
+
 const WizardComponent: Component = () => {
-  const persistedState = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+  const persistedState = JSON.parse(
+    localStorage.getItem(STORAGE_KEY) || "null"
+  );
 
   const [state, send, actor] = useActor(wizardMachine, {
     input: {},
@@ -27,7 +63,7 @@ const WizardComponent: Component = () => {
   const saveWorkflowState = () => {
     const persistedState = actor.getPersistedSnapshot();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(persistedState));
-  }
+  };
 
   const triggerEvent = (event: WizardEvent, clean: boolean = false) => {
     send(event);
@@ -36,7 +72,7 @@ const WizardComponent: Component = () => {
     } else {
       saveWorkflowState();
     }
-  }
+  };
 
   const onSubmit = (data: FormData, errors: Record<string, any>) => {
     if (!hasErrors(errors)) {
@@ -44,25 +80,37 @@ const WizardComponent: Component = () => {
     }
   };
 
-  function FormButton(props: { label: string; action: () => void }) {
-    return (
-      <div class="fjs-container">
-        <button type="submit" class="fjs-button" onClick={() => props.action()}>
-          {props.label}
-        </button>
-      </div>
-    );
-  }
-
   const BackButton = () => {
     return (
-      <FormButton label="Previous" action={() => triggerEvent({ type: "PREV" }, false)} />
+      <FormButton
+        label="Previous"
+        action={() => triggerEvent({ type: "PREV" }, false)}
+      />
+    );
+  };
+
+  const ErrorSubmittingProject = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    return (
+      <div style={{ color: '#ef4444', 'margin-bottom': '1rem' }}>
+        There is an error while submitting your project. Please try again.
+        <pre>{JSON.stringify(actor.getPersistedSnapshot(), null, 4)}</pre>
+        <br />
+        <pre>{JSON.stringify(state, null, 4)}</pre>
+        <BackButton />
+      </div>
     );
   };
 
   const SubmitButton = () => {
+    const isSubmitting = state.matches("submitting");
+
     return (
-      <FormButton label="Submit" action={() => triggerEvent({ type: "SUBMIT" }, true)} />
+        <FormButton
+          label={isSubmitting ? "Submitting..." : "Submit"}
+          action={() => triggerEvent({ type: "SUBMIT" }, false)}
+          disabled={isSubmitting}
+        />
     );
   };
 
@@ -70,36 +118,45 @@ const WizardComponent: Component = () => {
     const metadata: any = state.getMeta();
     const name = Object.keys(metadata)?.[0];
     const meta = metadata[name];
-    const form = props.schema || meta?.form || (meta?.form_fields && getForm(meta));
+    const form =
+      props.schema || meta?.form || (meta?.form_fields && getForm(meta));
 
     if (!form) {
       return <div>Internal error (incorrect form)</div>;
     }
 
     return (
-      <>
-        <BpmnForm
-          schema={form || props.schema}
-          data={state.context}
-          onSubmit={onSubmit}
-        />
-      </>
+      <BpmnForm
+        schema={form || props.schema}
+        data={state.context}
+        onSubmit={onSubmit}
+      />
     );
   }
 
-  function Review() {
+  const ConfirmationMessage: Component = () => {
+    localStorage.removeItem(STORAGE_KEY);
     return (
-      <div>
-        <h2>Review</h2>
-        <p>Final step ! Congratulations !</p>
-        <pre>
-          {JSON.stringify(state.context, null, 4)}
-        </pre>
-        <SubmitButton />
-        <BackButton />
-      </div>
+      <Box
+        sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+      >
+        <Confirmation
+          title="Success"
+          message="Your project has been created successfully"
+        />
+        <Button
+          component={A}
+          href="/"
+          variant="contained"
+          color="primary"
+          size="large"
+          sx={{ mt: 4 }}
+        >
+          Go to Home
+        </Button>
+      </Box>
     );
-  }
+  };
 
   return (
     <div>
@@ -115,14 +172,17 @@ const WizardComponent: Component = () => {
           <Form />
           <BackButton />
         </Match>
+        <Match when={state.matches("submitting")}>
+          <ErrorSubmittingProject />
+        </Match>
         <Match when={state.matches("step4")}>
-          <Review/>
+          <Review state={state}>
+            <SubmitButton />
+            <BackButton />
+          </Review>
         </Match>
         <Match when={state.matches("complete")}>
-          <div>
-            <h2>Confirmation</h2>
-            <p>Project has been successfully submitted</p>
-          </div>
+          <ConfirmationMessage />
         </Match>
       </Switch>
     </div>
