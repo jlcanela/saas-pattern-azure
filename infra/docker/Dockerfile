@@ -24,4 +24,4 @@ RUN DENO_DIR=/deno-dir deno cache --lock=deno.lock apps/api/main.ts
 ENV PORT=8000
 EXPOSE ${PORT}
 
-CMD ["run", "--allow-env", "--allow-net", "--allow-read", "apps/api/main.ts"]
+CMD ["run", "--allow-env", "--allow-net", "--allow-read", "apps/api/main.ts", "dist"]

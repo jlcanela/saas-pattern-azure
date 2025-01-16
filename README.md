@@ -25,6 +25,10 @@ docker build -f infra/docker/Dockerfile -t saas-pattern-azure .
 docker run -p 8000:8000 saas-pattern-azure
 ```
 
+```
+buildah bud -f infra/docker/Dockerfile -t saas-pattern-azure .
+```
+
 ## Perf test
 
 ```

@@ -1,20 +1,8 @@
 {
-  "tasks": {
-    "dev": "deno task build && deno task dev:api & deno task dev:vite",
-    "dev:api": "deno run --allow-env --allow-net --allow-read backend/main.ts",
-    "dev:vite": "deno run -A npm:vite",
-    "build": "deno run -A npm:vite build",
-    "clean": "rm -rf dist & rm -rf node_modules",
-    "serve": {
-      "command": "deno task dev:api",
-      "description": "Run the build, and then start the API server",
-      "dependencies": ["deno task build"]
-    }
-  },
   "imports": {
-    "@hono/hono": "jsr:@hono/hono@^4.6.16",
-    "@hono/hono/middleware": "jsr:@hono/hono/middleware@^4.6.16",
-    "@hono/hono/context": "jsr:@hono/hono/context@^4.6.16",
-    "@effect": "npm:effect"
+    "effect": "npm:effect@^3.12.4",
+    "node:http": "node:http",
+    "@effect/platform": "npm:@effect/platform@0.73.1",
+    "@effect/platform-node": "npm:@effect/platform-node@0.69.1"
   }
 }

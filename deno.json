@@ -1,7 +1,7 @@
 {
   "tasks": {
     "dev": "deno task dev:api & deno task dev:vite",
-    "dev:api": "deno run --watch --allow-env --allow-net --allow-read apps/api/main.ts",
+    "dev:api": "deno run --watch --allow-env --allow-net --allow-read apps/api/main.ts apps/web/dist",
     "dev:vite": "cd apps/web && deno run -A npm:vite",
     "build": "cd apps/web && deno run -A npm:vite build",
     "clean": "rm -rf dist & rm -rf node_modules",
