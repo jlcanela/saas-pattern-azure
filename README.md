@@ -5,7 +5,7 @@
 ## Install
 
 ```bash
-deno install --allow-scripts
+pnpm install
 ```
 
 ## Local run
@@ -14,13 +14,13 @@ Run locally [frontend](http://localhost:5173/) with vite and
 [api](http://localhost:8000/) with deno:
 
 ```
-deno task dev
+pnpm turbo run dev
 ```
 
 ## Docker run
 
 ```
-turbo run build
+pnpm turbo run build
 docker build -f infra/docker/Dockerfile -t saas-pattern-azure .
 docker run -p 8000:8000 saas-pattern-azure
 ```
