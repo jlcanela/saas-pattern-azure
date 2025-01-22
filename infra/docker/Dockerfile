@@ -1,27 +1,28 @@
-FROM denoland/deno:alpine-2.1.4
+FROM node:22-alpine
 
 WORKDIR /app
 
-# Create cache directories with proper permissions
-RUN mkdir -p /deno-dir/remote/https/jsr.io && \
-    chown -R deno:deno /deno-dir && \
-    chmod -R 777 /deno-dir && \
-    chown -R deno:deno /app
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Switch to deno user after setting up permissions
-USER deno
+# Copy package files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/api/package.json ./apps/api/
+COPY packages/common/package.json ./packages/common/
 
-# Copy files with correct ownership
-COPY --chown=deno:deno deno-run.json ./deno.json
-COPY --chown=deno:deno deno.lock ./
-COPY --chown=deno:deno apps/api/ ./apps/api
-COPY --chown=deno:deno packages/common/ ./packages/common
-COPY --chown=deno:deno apps/web/dist/ ./dist/
+# Install dependencies
+RUN pnpm install --frozen-lockfile
 
-# Cache dependencies with proper permissions
-RUN DENO_DIR=/deno-dir deno cache --lock=deno.lock apps/api/main.ts
+# Copy source files
+COPY apps/api/ ./apps/api
+COPY packages/common/ ./packages/common
+COPY apps/web/dist/ ./dist/
+
+# Build common package if needed
+# RUN pnpm --filter @repo/common build
 
 ENV PORT=8000
 EXPOSE ${PORT}
 
-CMD ["run", "--allow-env", "--allow-net", "--allow-read", "apps/api/main.ts", "dist"]
+# Use node directly to run the compiled JavaScript
+CMD ["node", "apps/api/dist/index.js", "dist"]

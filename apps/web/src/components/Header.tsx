@@ -1,7 +1,7 @@
 import { Component } from "solid-js";
 import { A } from "@solidjs/router";
-import MenuIcon from "@suid/icons-material/Menu";
-import { FaBrandsGithub } from 'solid-icons/fa'
+//import MenuIcon from "@suid/icons-material/Menu";
+import { FaBrandsGithub } from "solid-icons/fa";
 import {
   AppBar,
   Box,
@@ -15,11 +15,13 @@ import { useLocation } from "@solidjs/router";
 interface NavButtonProps {
   href: string;
   label: string;
+  blank?: boolean;
 }
 
 interface NavItem {
   href: string;
   label: string;
+  blank?: boolean;
 }
 
 const NavButton: Component<NavButtonProps> = (props) => {
@@ -27,38 +29,58 @@ const NavButton: Component<NavButtonProps> = (props) => {
   const isActive = () => location.pathname === props.href;
 
   return (
-    <Button
-      color="inherit"
-      href={props.href}
-      sx={{
-        bgcolor: isActive() ? "rgba(255, 255, 255, 0.12)" : "transparent",
-        "&:hover": {
-          bgcolor: isActive()
-            ? "rgba(255, 255, 255, 0.2)"
-            : "rgba(255, 255, 255, 0.08)",
-        },
-      }}
-    >
-      {props.label}
-    </Button>
+    <>
+      {props.blank ? (
+        <Button
+          component="a"
+          color="inherit"
+          href={props.href}
+          target="_blank"
+          sx={{
+            bgcolor: isActive() ? "rgba(255, 255, 255, 0.12)" : "transparent",
+            "&:hover": {
+              bgcolor: isActive()
+                ? "rgba(255, 255, 255, 0.2)"
+                : "rgba(255, 255, 255, 0.08)",
+            },
+          }}
+        >
+          {props.label}
+        </Button>
+      ) : (
+        <Button
+          color="inherit"
+          href={props.href}
+          sx={{
+            bgcolor: isActive() ? "rgba(255, 255, 255, 0.12)" : "transparent",
+            "&:hover": {
+              bgcolor: isActive()
+                ? "rgba(255, 255, 255, 0.2)"
+                : "rgba(255, 255, 255, 0.08)",
+            },
+          }}
+        >
+          {props.label}
+        </Button>
+      )}
+    </>
   );
 };
 
 export function Header() {
   //const base = import.meta.env.MODE === 'production' ? '/project-ui' : '';
-  
+
   const navItems: NavItem[] = [
-    // { href: "/business-editor", label: "BPMN Editor" },
-    // { href: "/database-explorer", label: "Database Explorer" },
-    // { href: "/structure-editor", label: "Structure Editor" },
-    // { href: "/file-explorer", label: "File Explorer" },
+    { href: "/project-requests", label: "Requests" },
+    { href: "/projects", label: "Projects" },
+    { href: "/docs", label: "OpenAPI (OAS 3.1)", blank: true },
   ];
-  
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
-          <IconButton
+          {/* <IconButton
             size="large"
             edge="start"
             color="inherit"
@@ -66,14 +88,18 @@ export function Header() {
             sx={{ mr: 2 }}
           >
             <MenuIcon />
-          </IconButton>
+          </IconButton> */}
           <Typography variant="h6" component="div" sx={{ mr: 2 }}>
             Smart UI
           </Typography>
           <NavButton href="/" label="Home" />
 
           {navItems.map((item) => (
-            <NavButton href={`/${item.href}`} label={item.label} />
+            <NavButton
+              href={`${item.href}`}
+              label={item.label}
+              blank={item.blank}
+            />
           ))}
 
           <Box sx={{ flexGrow: 1 }} />

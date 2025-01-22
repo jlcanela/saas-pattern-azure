@@ -1,0 +1,26 @@
+{
+  "name": "api",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "tsc",
+    "start": "pnpm run build && node dist/index.js ../web/dist",
+    "dev": "tsx --watch src/index.ts ../web/dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@effect/platform": "^0.74.0",
+    "@effect/platform-node": "^0.70.0",
+    "effect": "^3.12.6",
+    "common": "workspace:^"
+  },
+  "devDependencies": {
+    "@tsconfig/node18": "^18.2.4",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.2"
+  }
+}

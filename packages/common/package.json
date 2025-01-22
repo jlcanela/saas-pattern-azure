@@ -1,0 +1,18 @@
+{
+  "name": "common",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "clean": "rm -rf node_modules dist"
+  },
+  "dependencies": {
+    "@effect/platform": "^0.75.0",
+    "effect": "^3.12.6"
+  },
+  "devDependencies": {
+    "@tsconfig/node21": "^21.0.3",
+    "typescript": "^5.5.4"
+  }
+}

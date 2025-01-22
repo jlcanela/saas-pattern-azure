@@ -1,13 +1,14 @@
-import { Component } from "solid-js";
+import { Component, createEffect, createSignal, onCleanup } from "solid-js";
 import { useActor } from "@xstate/solid";
 import { Match, Switch } from "solid-js";
-import { wizardMachine } from "./WizardMachine";
-import BpmnForm, { getForm, hasErrors } from "../../components/Form";
-import { Box, Button } from "@suid/material";
-import Review from "./Review";
-import Confirmation from "./Confirmation";
+import { wizardMachine } from "./WizardMachine.js";
+import BpmnForm, { getForm, hasErrors } from "../../components/Form.jsx";
+import { Alert, AlertTitle, Box, Button, LinearProgress } from "@suid/material";
+import Review from "./Review.jsx";
+import Confirmation from "./Confirmation.jsx";
 import { A } from "@solidjs/router";
-import { ProjectRequest } from "@/common/model.ts";
+
+import { ProjectRequest } from "just-in-time-package";
 
 type WizardEventType = "NEXT" | "PREV" | "SUBMIT";
 
@@ -40,6 +41,25 @@ const FormButton: Component<FormButtonProps> = (props) => {
       >
         {props.label}
       </button>
+    </div>
+  );
+};
+
+const ElapsedTime: Component = () => {
+  const [elapsed, setElapsed] = createSignal(0);
+  
+  createEffect(() => {
+    const startTime = Date.now();
+    const timer = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - startTime) / 1000));
+    }, 1000);
+    
+    onCleanup(() => clearInterval(timer));
+  });
+
+  return (
+    <div>
+      Project request is being submitted... ({elapsed()} seconds elapsed)
     </div>
   );
 };
@@ -152,6 +172,7 @@ const WizardComponent: Component = () => {
     );
   };
 
+  //<ErrorSubmittingProject />
   return (
     <div>
       <Switch>
@@ -167,7 +188,18 @@ const WizardComponent: Component = () => {
           <BackButton />
         </Match>
         <Match when={state.matches("submitting")}>
-          <ErrorSubmittingProject />
+          <Review state={state}></Review>
+          <Alert
+            severity="info"
+            sx={{
+              mt: 2,
+              mx: 3, // matches the Review component's padding
+            }}
+          >
+            <AlertTitle>Processing</AlertTitle>
+            <ElapsedTime />
+          </Alert>
+          <LinearProgress />
         </Match>
         <Match when={state.matches("step4")}>
           <Review state={state}>

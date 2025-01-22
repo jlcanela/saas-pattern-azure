@@ -20,7 +20,7 @@ deno task dev
 ## Docker run
 
 ```
-deno task build
+turbo run build
 docker build -f infra/docker/Dockerfile -t saas-pattern-azure .
 docker run -p 8000:8000 saas-pattern-azure
 ```
@@ -93,4 +93,5 @@ The file '.github/workflows/undeploy-azure.yml' is provided but would require
 either admin or owner rights.
 
 ```
+
 ```

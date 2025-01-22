@@ -1,8 +1,0 @@
-{
-  "imports": {
-    "effect": "npm:effect@^3.12.4",
-    "node:http": "node:http",
-    "@effect/platform": "npm:@effect/platform@0.73.1",
-    "@effect/platform-node": "npm:@effect/platform-node@0.69.1"
-  }
-}
