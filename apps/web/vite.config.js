@@ -1,8 +1,10 @@
-import { defineConfig } from 'vite';
-import solidPlugin from 'vite-plugin-solid';
+import { defineConfig } from "vite";
+import solidPlugin from "vite-plugin-solid";
+import suidPlugin from "@suid/vite-plugin";
+import pkg from "./package.json";
 
 export default defineConfig({
-  plugins: [solidPlugin()],
+  plugins: [suidPlugin(), solidPlugin()],
   server: {
     proxy: {
       "/api": {
@@ -16,6 +18,9 @@ export default defineConfig({
     },
   },
   build: {
-    target: 'esnext',
+    target: "esnext",
+    // modulePreload: {
+    //   polyfill: true,
+    // },
   },
 });

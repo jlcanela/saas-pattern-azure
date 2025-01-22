@@ -86,6 +86,9 @@ importers:
         specifier: ^5.19.1
         version: 5.19.2
     devDependencies:
+      '@suid/vite-plugin':
+        specifier: ^0.3.1
+        version: 0.3.1(vite@6.0.11)
       vite:
         specifier: ^6.0.0
         version: 6.0.11
@@ -1546,6 +1549,22 @@ packages:
       '@suid/types': 0.7.1(solid-js@1.9.4)
       solid-js: 1.9.4
     dev: false
+
+  /@suid/vite-plugin@0.3.1(vite@6.0.11):
+    resolution: {integrity: sha512-IXbYxRZr4ie4iCYlqBM2znLV/RKrIT2zpaYYI5k1DbJHXVW5nXniCoii7BlvM2SonOKlsQ6R8CNI2X3bjAmoVQ==}
+    peerDependencies:
+      vite: ^5.0.0
+    dependencies:
+      '@babel/generator': 7.26.5
+      '@babel/parser': 7.26.5
+      '@babel/traverse': 7.26.5
+      '@babel/types': 7.26.5
+      '@types/babel__generator': 7.6.8
+      '@types/babel__traverse': 7.20.6
+      vite: 6.0.11
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
 
   /@tsconfig/node10@1.0.11:
     resolution: {integrity: sha512-DcRjDCujK/kCk/cUe8Xz8ZSpm8mS3mNNpta+jGCA6USEDfktlNvm1+IuZ9eTcDbNk41BHwpHHeW+N1lKCz4zOw==}
