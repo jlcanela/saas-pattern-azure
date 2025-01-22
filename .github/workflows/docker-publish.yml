@@ -2,9 +2,9 @@ name: Docker Build and Push
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 env:
   REGISTRY: ghcr.io
@@ -16,35 +16,40 @@ jobs:
     permissions:
       contents: read
       packages: write
+
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Deno
-        uses: denoland/setup-deno@v2
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          deno-version: v2.1.5
+          fetch-depth: 1
 
-      - name: Create cache directories
-        run: mkdir -p ~/.cache/deno && mkdir -p ~/.deno
-        
-      - name: Cache Deno dependencies
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Security audit
+        run: pnpm audit
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache Turbo
         uses: actions/cache@v4
         with:
-            path: |
-              ~/.cache/deno
-              ~/.deno
-            key: ${{ runner.os }}-deno-v1-${{ hashFiles('deno.lock') }}
-            restore-keys: |
-              ${{ runner.os }}-deno-
-              
-      - name: Install Deno Task
-        run: deno install --allow-scripts=npm:@carbon/grid@11.30.0,npm:@carbon/layout@11.28.0
+          path: |
+            .turbo
+            node_modules/.cache/turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
 
-      - name: Download dependencies
-        run: deno cache backend/main.ts
-            
       - name: Build
-        run: deno task build
+        run: pnpm turbo run build
 
       - name: Build Image
         id: build-image
