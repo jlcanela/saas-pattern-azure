@@ -1,37 +1,12 @@
 import { FetchHttpClient, HttpApi, HttpApiClient, HttpApiEndpoint, HttpApiGroup } from "@effect/platform";
 
 import { Effect, Schema } from "effect"
+import { ProjectRequest, ProjectsResponse } from "./Domain/Project.js";
+import { PingResponse } from "./Domain/Health.js";
 
-// Define the schema without extending classes
-export const PingResponse: Schema.Schema<string, string, never> = Schema.String
-
-export const ProjectRequest = Schema.Struct({
-    project_name: Schema.String,
-    project_description: Schema.String,
-    project_objective: Schema.String,
-    project_stakeholders: Schema.String
-})
-
-export const ProjectResponse = Schema.Struct({
-    id: Schema.UUID,
-    project_name: Schema.String,
-    project_description: Schema.String,
-    project_objective: Schema.String,
-    project_stakeholders: Schema.String
-})
-
-export const ProjectsResponse = Schema.Struct({
-    projects: Schema.Array(ProjectResponse)
-})
-
-// Type inference from schemas
-export type PingResponseType = typeof PingResponse.Type //Schema.Schema.Type<typeof PingResponse>
-export type ProjectRequestType = Schema.Schema.Type<typeof ProjectRequest>
-export type ProjectResponseType = Schema.Schema.Type<typeof ProjectResponse>
-export type ProjectsResponseType = Schema.Schema.Type<typeof ProjectsResponse>
 
 export const monitoringApi = HttpApiGroup.make("monitoring")
-    .add(HttpApiEndpoint.get("ping")`/ping`.addSuccess(Schema.String))
+    .add(HttpApiEndpoint.get("ping")`/ping`.addSuccess(PingResponse))
 
 export const projectsApi = HttpApiGroup.make("projects")
     .add(HttpApiEndpoint.post("create")`/projects`.setPayload(ProjectRequest).addSuccess(Schema.String))

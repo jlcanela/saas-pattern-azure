@@ -1,23 +1,25 @@
 // src/main.ts
 import { NodeRuntime } from "@effect/platform-node"
-import { Arbitrary, Effect, FastCheck, Layer, Schema } from "effect"
+import { Effect, Layer, Schema } from "effect"
 
 import { NodeHttpServer } from "@effect/platform-node"
-import { HttpMiddleware, HttpApiSwagger, HttpApiBuilder, HttpApiGroup, HttpApiEndpoint, HttpApi } from "@effect/platform"
+import { HttpMiddleware, HttpApiSwagger, HttpApiBuilder, HttpApiGroup, HttpApiEndpoint, HttpApi, KeyValueStore, HttpApiError } from "@effect/platform"
 
 import { createServer } from "node:http"
 import { WebAppRoutes } from "./WebApp.js"
+import { TracingLive } from "./Tracing.js"
+import { ProjectsRepo } from "./Projects/ProjectsRepo.js"
 
-export const PingResponse: Schema.Schema<string, string, never> = Schema.String
+import { NotAvailable } from "../../../packages/common/src/Domain/Project.js"
 
-export const ProjectRequest = Schema.Struct({
+const ProjectRequest = Schema.Struct({
     project_name: Schema.String,
     project_description: Schema.String,
     project_objective: Schema.String,
     project_stakeholders: Schema.String
 })
 
-export const ProjectResponse = Schema.Struct({
+const ProjectResponse = Schema.Struct({
     id: Schema.UUID,
     project_name: Schema.String,
     project_description: Schema.String,
@@ -25,31 +27,43 @@ export const ProjectResponse = Schema.Struct({
     project_stakeholders: Schema.String
 })
 
-export const ProjectsResponse = Schema.Struct({
+const ProjectsResponse = Schema.Struct({
     projects: Schema.Array(ProjectResponse)
 })
 
-// Type inference from schemas
-export type PingResponseType = typeof PingResponse.Type //Schema.Schema.Type<typeof PingResponse>
-export type ProjectRequestType = Schema.Schema.Type<typeof ProjectRequest>
-export type ProjectResponseType = Schema.Schema.Type<typeof ProjectResponse>
-export type ProjectsResponseType = Schema.Schema.Type<typeof ProjectsResponse>
-
-const monitoring = HttpApiGroup.make("monitoring")
+const monitoringApi = HttpApiGroup.make("monitoring")
     .add(HttpApiEndpoint.get("ping")`/ping`.addSuccess(Schema.String))
 
-const projects = HttpApiGroup.make("projects")
-    .add(HttpApiEndpoint.post("create")`/projects`.setPayload(ProjectRequest).addSuccess(Schema.String))
-    .add(HttpApiEndpoint.get("list")`/projects`.addSuccess(ProjectsResponse))
+const projectsApi = HttpApiGroup.make("projects")
+    .add(HttpApiEndpoint.post("create")`/projects`
+        .setPayload(ProjectRequest)
+        .addSuccess(Schema.String)
+        .addError(HttpApiError.HttpApiDecodeError, { status: 400 })
+        .addError(HttpApiError.NotFound, { status: 404 })
+        .addError(NotAvailable, { status: 503 })
+    )
+    .add(HttpApiEndpoint.get("list")`/projects`
+        .addSuccess(ProjectsResponse)
+        .addError(NotAvailable, { status: 503 })
+    )
 
-export const api = HttpApi.make("MainApi").add(projects).add(monitoring).prefix("/api")
-
-const arb = Arbitrary.make(ProjectResponse)
+export const api = HttpApi.make("MainApi").add(projectsApi).add(monitoringApi).prefix("/api")
 
 const ProjectsApiLive = HttpApiBuilder.group(api, "projects", (handlers) =>
     handlers
-        .handle("create", (req) => Effect.succeed(`Project ${req.payload} created`))
-        .handle("list", (_req) => Effect.succeed({ projects: FastCheck.sample(arb, 2) }))
+        .handle("create", (req) => Effect.gen(function* (_) {
+            const repo = yield* ProjectsRepo;
+            const message = yield* repo.create(req.payload).pipe(
+                Effect.map(() => `Project '${req.payload.project_name}' created`),
+                Effect.catchAll(() => Effect.fail(NotAvailable.make({})))
+            );
+            return message;
+        }))
+        .handle("list", () => Effect.gen(function* (_) {
+            const repo = yield* ProjectsRepo;
+            const p = yield* repo.list().pipe(Effect.catchAll(() => Effect.fail(NotAvailable.make({}))));
+            return ProjectsResponse.make({ projects: p });
+        }))
 )
 
 const MonitoringApiLive = HttpApiBuilder.group(api, "monitoring", (handlers) =>
@@ -65,12 +79,15 @@ export const MyApiLive = HttpApiBuilder.api(api).pipe(
 export const ServerLive = NodeHttpServer.layer(createServer, { port: 8000 })
 
 export const HttpLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
+    Layer.provide(TracingLive),
     Layer.provide(HttpApiSwagger.layer()),
     Layer.provide(MyApiLive),
+    Layer.provide(ProjectsRepo.live),
+    Layer.provide(KeyValueStore.layerMemory),
     Layer.provide(WebAppRoutes),
     Layer.provide(ServerLive)
 )
 
 const httpServer = Layer.launch(HttpLive)
 
-NodeRuntime.runMain(httpServer)
+NodeRuntime.runMain(httpServer, { disablePrettyLogger: true })
