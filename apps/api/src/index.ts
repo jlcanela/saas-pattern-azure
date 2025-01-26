@@ -3,40 +3,36 @@ import { NodeRuntime } from "@effect/platform-node"
 import { Effect, Layer, Schema } from "effect"
 
 import { NodeHttpServer } from "@effect/platform-node"
-import { HttpMiddleware, HttpApiSwagger, HttpApiBuilder, HttpApiGroup, HttpApiEndpoint, HttpApi, KeyValueStore, HttpApiError } from "@effect/platform"
+import { HttpMiddleware, HttpApiSwagger, HttpApiBuilder, HttpApiGroup, HttpApiEndpoint, HttpApi, KeyValueStore, HttpApiError, HttpApiSchema } from "@effect/platform"
 
 import { createServer } from "node:http"
 import { WebAppRoutes } from "./WebApp.js"
 import { TracingLive } from "./Tracing.js"
 import { ProjectsRepo } from "./Projects/ProjectsRepo.js"
+import { ProjectRequest, Project, ProjectResponse, ProjectsResponse } from 'common';
 
 import { NotAvailable } from "../../../packages/common/src/Domain/Project.js"
-
-const ProjectRequest = Schema.Struct({
-    project_name: Schema.String,
-    project_description: Schema.String,
-    project_objective: Schema.String,
-    project_stakeholders: Schema.String
-})
-
-const ProjectResponse = Schema.Struct({
-    id: Schema.UUID,
-    project_name: Schema.String,
-    project_description: Schema.String,
-    project_objective: Schema.String,
-    project_stakeholders: Schema.String
-})
-
-const ProjectsResponse = Schema.Struct({
-    projects: Schema.Array(ProjectResponse)
-})
 
 const monitoringApi = HttpApiGroup.make("monitoring")
     .add(HttpApiEndpoint.get("ping")`/ping`.addSuccess(Schema.String))
 
+const idParam = HttpApiSchema.param("id", Schema.String.pipe(Schema.brand("ProjectId")))
+
 const projectsApi = HttpApiGroup.make("projects")
     .add(HttpApiEndpoint.post("create")`/projects`
         .setPayload(ProjectRequest)
+        .addSuccess(Schema.String)
+        .addError(HttpApiError.HttpApiDecodeError, { status: 400 })
+        .addError(HttpApiError.NotFound, { status: 404 })
+        .addError(NotAvailable, { status: 503 })
+    )
+    .add(HttpApiEndpoint.get("findById")`/projects/${idParam}/edit`
+        .addSuccess(ProjectResponse)
+        .addError(HttpApiError.NotFound, { status: 404 })
+        .addError(NotAvailable, { status: 503 })
+    )
+    .add(HttpApiEndpoint.post("update")`/projects/${idParam}`
+        .setPayload(Project)
         .addSuccess(Schema.String)
         .addError(HttpApiError.HttpApiDecodeError, { status: 400 })
         .addError(HttpApiError.NotFound, { status: 404 })
@@ -47,6 +43,7 @@ const projectsApi = HttpApiGroup.make("projects")
         .addError(NotAvailable, { status: 503 })
     )
 
+
 export const api = HttpApi.make("MainApi").add(projectsApi).add(monitoringApi).prefix("/api")
 
 const ProjectsApiLive = HttpApiBuilder.group(api, "projects", (handlers) =>
@@ -55,6 +52,25 @@ const ProjectsApiLive = HttpApiBuilder.group(api, "projects", (handlers) =>
             const repo = yield* ProjectsRepo;
             const message = yield* repo.create(req.payload).pipe(
                 Effect.map(() => `Project '${req.payload.project_name}' created`),
+                Effect.catchAll(() => Effect.fail(NotAvailable.make({})))
+            );
+            return message;
+        }))
+        .handle("findById", ({ path: { id } }) => Effect.gen(function* (_) {
+            const repo = yield* ProjectsRepo;
+            return yield* repo.findById(id).pipe(
+                Effect.flatMap(project =>
+                    project === null
+                        ? Effect.fail(HttpApiError.NotFound)
+                        : Effect.succeed(ProjectResponse.make(project))
+                ),
+                Effect.catchAll(() => Effect.fail(NotAvailable.make({})))
+            );
+        }))
+        .handle("update", (req) => Effect.gen(function* (_) {
+            const repo = yield* ProjectsRepo;
+            const message = yield* repo.update(req.payload).pipe(
+                Effect.map(() => `Project '${req.payload.project_name}' updated`),
                 Effect.catchAll(() => Effect.fail(NotAvailable.make({})))
             );
             return message;

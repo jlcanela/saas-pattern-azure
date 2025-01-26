@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import Projects from "./pages/Projects";
 import { AudioPlayer } from "./pages/AudioPlayer/index.jsx";
 import { ProjectRequest } from "./pages/ProjectRequest/index.jsx";
+import { EditProject } from "./pages/EditProject.jsx";
 
 // Create the custom theme
 const theme = createTheme({
@@ -49,6 +50,7 @@ export default function App() {
         <Route path="/" component={Home} />
         <Route path="/project-requests" component={Home} />
         <Route path="/projects" component={Projects} />
+        <Route path="/projects/:id/edit" component={EditProject} />
         <Route path="/audio-player" component={AudioPlayer} />
         <Route path="/request-project" component={ProjectRequest} />
       </Router>

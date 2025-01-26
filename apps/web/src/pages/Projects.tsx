@@ -5,11 +5,14 @@ import {
   CardHeader,
   Typography,
   Stack,
+  CardActions,
+  Button,
 } from "@suid/material";
 
 import { Effect } from "effect";
 
 import { projectsList } from "common";
+import { useNavigate } from "@solidjs/router";
 
 interface ProjectsProps {}
 
@@ -17,6 +20,7 @@ export const Projects: Component<ProjectsProps> = (props) => {
   const [projects] = createResource(async () =>
     Effect.runPromise(projectsList)
   );
+  const navigate = useNavigate();
 
   return (
     <Stack spacing={2} sx={{ padding: 2 }}>
@@ -43,6 +47,15 @@ export const Projects: Component<ProjectsProps> = (props) => {
                   <strong>Stakeholders:</strong> {project.project_stakeholders}
                 </Typography>
               </CardContent>
+              <CardActions>
+                <Button
+                  size="small"
+                  color="primary"
+                  onClick={() => navigate(`/projects/${project.id}/edit`)}
+                >
+                  Edit Project
+                </Button>
+              </CardActions>
             </Card>
           )}
         </For>

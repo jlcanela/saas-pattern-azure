@@ -1,32 +1,30 @@
 import { Schema } from "effect"
 
-export const ProjectId = Schema.UUID.pipe(Schema.brand("ProjectId"))
+export const ProjectId = Schema.String.pipe(Schema.brand("ProjectId"))
 export type ProjectId = typeof ProjectId.Type
 
 export const ProjectRequest = Schema.Struct({
-  project_name: Schema.String,
-  project_description: Schema.String,
-  project_objective: Schema.String,
-  project_stakeholders: Schema.String
+  project_name: Schema.String.annotations({ title: "Project Name" }),
+  project_description: Schema.String.annotations({ title: "Project Description" }),
+  project_objective: Schema.String.annotations({ title: "Project Objective" }),
+  project_stakeholders: Schema.String.annotations({ title: "Project Stakeholders" })
 })
 
 export type ProjectRequest = typeof ProjectRequest.Type
 
 export const ProjectResponse = Schema.Struct({
   id: ProjectId,
-  project_name: Schema.String,
-  project_description: Schema.String,
-  project_objective: Schema.String,
-  project_stakeholders: Schema.String
+  ...ProjectRequest.fields
 })
 
+export type ProjectResponse = typeof ProjectResponse.Type
+
 export const Project = Schema.Struct({
-  id: ProjectId,
-  project_name: Schema.String,
-  project_description: Schema.String,
-  project_objective: Schema.String,
-  project_stakeholders: Schema.String
+  ...ProjectResponse.fields
 })
+
+export type Project = typeof Project.Type
+
 export const ProjectsResponse = Schema.Struct({
   projects: Schema.Array(ProjectResponse)
 })
@@ -43,3 +41,19 @@ export class NotAvailable extends Schema.TaggedError<NotAvailable>()(
   {
   }
 ) { }
+
+
+
+export const ProjectInfo = Schema.Struct({
+  name: Schema.String.pipe(Schema.minLength(1)).annotations({ title: "Name" }),
+  description: Schema.String.pipe(Schema.minLength(1)).annotations({ title: "Description" }),
+})
+
+export type ProjectInfo = typeof ProjectInfo.Type
+
+export const ProjectObjective = Schema.Struct({
+  objectives: Schema.String.pipe(Schema.minLength(1)).annotations({ title: "Objectives" }),
+  stakeholders: Schema.String.pipe(Schema.minLength(1)).annotations({ title: "Stakeholders" }),
+})
+
+export type ProjectObjective = typeof ProjectObjective.Type

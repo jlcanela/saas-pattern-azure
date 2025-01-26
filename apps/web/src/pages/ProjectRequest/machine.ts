@@ -2,9 +2,7 @@ import { assign, fromPromise, setup } from "xstate";
 import { Effect, Schema } from "effect"
 
 import { Context, Events, StateContext } from "./machine-types";
-import { onCreateProject } from "./effect";
 import { ProjectRequest, projectsCreate } from "common";
-import { descriptor } from "effect/Effect";
 
 export const machine = setup({
     types: {
@@ -23,8 +21,8 @@ export const machine = setup({
         }),
     },
     actors: {
-        createProject: fromPromise(async ({ input }: { input: ProjectRequest }) =>
-            projectsCreate(input).pipe(Effect.runPromise))
+        createProject: fromPromise(async ({ input }: { input?: ProjectRequest }) =>
+            input ? projectsCreate(input).pipe(Effect.runPromise) : Effect.fail(new Error("Invalid input")))
     }
 }).createMachine({
     context: Schema.decodeSync(StateContext)({
@@ -68,13 +66,16 @@ export const machine = setup({
                 id: 'createProject',
                 src: 'createProject',
                 input: ({ context }) => {
-                    console.log("context", JSON.stringify(context, null, 4));
-                    return ProjectRequest.make({
-                        project_name: context.info?.name || "",
-                        project_description: context.info?.description || "",
-                        project_objective: context.objectives?.objectives || "",
-                        project_stakeholders: context.objectives?.stakeholders || ""
-                    })
+                    if (!context.info || !context.objectives) {
+                        return undefined;
+                    } else {
+                        return ProjectRequest.make({
+                            project_name: context.info.name,
+                            project_description: context.info.description,
+                            project_objective: context.objectives.objectives,
+                            project_stakeholders: context.objectives.stakeholders
+                        })
+                    }
                 },
                 onDone: {
                     target: 'complete',

@@ -54,7 +54,7 @@ export function getForm(f: FormFields): Schema {
   };
 }
 
-function convertToFormJs(schema: S.Schema<any, any>) {
+function convertToFormJs(title: string, schema: S.Schema<any, any>) {
   const jsonSchema = JSONSchema.make(schema);
   const isJsonSchema7Object = (
     schema: any
@@ -70,7 +70,7 @@ function convertToFormJs(schema: S.Schema<any, any>) {
     : [];
 
   const formFields: FormFields = {
-    title: "Request Project",
+    title,
     form_fields: fields,
   };
 
@@ -108,6 +108,7 @@ function isFormJsSchema(schema: Schema | S.Schema<any, any>): schema is Schema {
 
 interface BpmnFormProps {
   key: string;
+  title?: string;
   schema: Schema | S.Schema<any, any>;
   data: any;
   onSubmit: OnSubmitCallback;
@@ -125,7 +126,7 @@ function BpmnForm(props: BpmnFormProps) {
       if (props.schema) {
         const schema = isFormJsSchema(props.schema)
           ? props.schema
-          : convertToFormJs(props.schema);
+          : convertToFormJs(props.title || "Form", props.schema);
         form = createForm(formContainer, schema, props.data, props.onSubmit);
       }
     }
