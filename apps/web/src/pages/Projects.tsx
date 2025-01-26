@@ -18,10 +18,6 @@ export const Projects: Component<ProjectsProps> = (props) => {
     Effect.runPromise(projectsList)
   );
 
-  createEffect(() => {
-    console.log(projects());
-  });
-
   return (
     <Stack spacing={2} sx={{ padding: 2 }}>
       <Typography variant="h4" component="h1">

@@ -6,10 +6,11 @@ import { createTheme } from "@suid/material/styles";
 //import FormJs from "./pages/FormJs";
 import { Header } from "./components/Header.jsx";
 import { Box } from "@suid/material";
-import Home from "./pages/Home.tsx";
+import Home from "./pages/Home";
 
-import ProjectRequestWizard from "./pages/ProjectRequestWizard/index.tsx";
-import Projects from "./pages/Projects.tsx";
+import Projects from "./pages/Projects";
+import { AudioPlayer } from "./pages/AudioPlayer/index.jsx";
+import { ProjectRequest } from "./pages/ProjectRequest/index.jsx";
 
 // Create the custom theme
 const theme = createTheme({
@@ -46,9 +47,10 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <Router root={Layout}>
         <Route path="/" component={Home} />
-        <Route path="/simple-wizard" component={ProjectRequestWizard} />
         <Route path="/project-requests" component={Home} />
         <Route path="/projects" component={Projects} />
+        <Route path="/audio-player" component={AudioPlayer} />
+        <Route path="/request-project" component={ProjectRequest} />
       </Router>
     </ThemeProvider>
   );

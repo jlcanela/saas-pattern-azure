@@ -1,6 +1,6 @@
 import { Component } from "solid-js";
 import { A } from "@solidjs/router";
-//import MenuIcon from "@suid/icons-material/Menu";
+import MenuIcon from "@suid/icons-material/Menu";
 import { FaBrandsGithub } from "solid-icons/fa";
 import {
   AppBar,
@@ -71,7 +71,9 @@ export function Header() {
   //const base = import.meta.env.MODE === 'production' ? '/project-ui' : '';
 
   const navItems: NavItem[] = [
-    { href: "/project-requests", label: "Requests" },
+    //{ href: "/project-requests", label: "Requests" },
+    //{ href: "/audio-player", label: "Audio Player" },
+    { href: "/request-project", label: "Request Project" },
     { href: "/projects", label: "Projects" },
     { href: "/docs", label: "OpenAPI (OAS 3.1)", blank: true },
   ];
@@ -80,15 +82,17 @@ export function Header() {
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
-          {/* <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton> */}
+          {
+            <IconButton
+              size="large"
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+          }
           <Typography variant="h6" component="div" sx={{ mr: 2 }}>
             Smart UI
           </Typography>

@@ -10,6 +10,8 @@ export const ProjectRequest = Schema.Struct({
   project_stakeholders: Schema.String
 })
 
+export type ProjectRequest = typeof ProjectRequest.Type
+
 export const ProjectResponse = Schema.Struct({
   id: ProjectId,
   project_name: Schema.String,
