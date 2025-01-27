@@ -16,18 +16,29 @@ export const ProjectResponse = Schema.Struct({
   id: ProjectId,
   ...ProjectRequest.fields
 })
-
 export type ProjectResponse = typeof ProjectResponse.Type
 
 export const Project = Schema.Struct({
   ...ProjectResponse.fields
 })
-
 export type Project = typeof Project.Type
 
 export const ProjectsResponse = Schema.Struct({
   projects: Schema.Array(ProjectResponse)
 })
+export type ProjectsResponse = typeof ProjectsResponse.Type
+
+export const ProjectUpdate = Schema.Struct({
+  timestamp: Schema.Date,
+  reason: Schema.String,
+  userId: Schema.String,
+  changes: Schema.Array(Schema.Struct({
+    field: Schema.String,
+    oldValue: Schema.String,
+    newValue: Schema.String
+  }))
+})
+export type ProjectUpdate = typeof ProjectUpdate.Type
 
 export class ProjectNotFound extends Schema.TaggedError<ProjectNotFound>()(
   "ProjectNotFound",

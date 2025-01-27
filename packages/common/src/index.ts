@@ -3,7 +3,7 @@ import { FetchHttpClient, HttpApi, HttpApiClient, HttpApiEndpoint, HttpApiError,
 import { Effect, Schema } from "effect"
 export * from "./Domain/Project.js";
 
-import { NotAvailable, ProjectId, ProjectRequest, Project, ProjectResponse, ProjectsResponse } from "./Domain/Project.js";
+import { NotAvailable, ProjectId, ProjectRequest, ProjectUpdate, Project, ProjectResponse, ProjectsResponse } from "./Domain/Project.js";
 import { PingResponse } from "./Domain/Health.js";
 
 export const monitoringApi = HttpApiGroup.make("monitoring")
@@ -21,6 +21,10 @@ export const projectsApi = HttpApiGroup.make("projects")
         .setPayload(Project)
         .addSuccess(Schema.String)
         .addError(HttpApiError.HttpApiDecodeError, { status: 400 })
+        .addError(HttpApiError.NotFound, { status: 404 })
+        .addError(NotAvailable, { status: 503 }))
+    .add(HttpApiEndpoint.get("findProjectUpdatesById")`/projects/${idParam}/updates`
+        .addSuccess(ProjectUpdate)
         .addError(HttpApiError.NotFound, { status: 404 })
         .addError(NotAvailable, { status: 503 }))
     .add(HttpApiEndpoint.get("list")`/projects`.addSuccess(ProjectsResponse))
@@ -58,4 +62,11 @@ export const projectUpdate = (payload: Project) => Effect.gen(function* () {
     return yield* client.projects.update({
         path: { id: payload.id }, payload
     });
+}).pipe(Effect.provide(FetchHttpClient.layer));
+
+export const projectFindUpdatesById = (id: ProjectId) => Effect.gen(function* () {
+    const client = yield* HttpApiClient.make(api, {
+        baseUrl: "/",
+    });
+    return yield* client.projects.findProjectUpdatesById({ path: { id } });
 }).pipe(Effect.provide(FetchHttpClient.layer));

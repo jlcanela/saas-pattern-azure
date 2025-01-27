@@ -9,7 +9,7 @@ import { createServer } from "node:http"
 import { WebAppRoutes } from "./WebApp.js"
 import { TracingLive } from "./Tracing.js"
 import { ProjectsRepo } from "./Projects/ProjectsRepo.js"
-import { ProjectRequest, Project, ProjectResponse, ProjectsResponse } from 'common';
+import { ProjectRequest, Project, ProjectResponse, ProjectUpdate, ProjectsResponse } from 'common';
 
 import { NotAvailable } from "../../../packages/common/src/Domain/Project.js"
 
@@ -38,6 +38,10 @@ const projectsApi = HttpApiGroup.make("projects")
         .addError(HttpApiError.NotFound, { status: 404 })
         .addError(NotAvailable, { status: 503 })
     )
+    .add(HttpApiEndpoint.get("findProjectUpdatesById")`/projects/${idParam}/updates`
+        .addSuccess(ProjectUpdate)
+        .addError(HttpApiError.NotFound, { status: 404 })
+        .addError(NotAvailable, { status: 503 }))
     .add(HttpApiEndpoint.get("list")`/projects`
         .addSuccess(ProjectsResponse)
         .addError(NotAvailable, { status: 503 })
@@ -74,6 +78,17 @@ const ProjectsApiLive = HttpApiBuilder.group(api, "projects", (handlers) =>
                 Effect.catchAll(() => Effect.fail(NotAvailable.make({})))
             );
             return message;
+        }))
+        .handle("findProjectUpdatesById", ({ path: { id } }) => Effect.gen(function* (_) {
+            const repo = yield* ProjectsRepo;
+            return yield* repo.findUpdatesById(id).pipe(
+                Effect.flatMap(projectUpdates =>
+                    projectUpdates === null
+                        ? Effect.fail(HttpApiError.NotFound)
+                        : Effect.succeed(ProjectUpdate.make(projectUpdates))
+                ),
+                Effect.catchAll(() => Effect.fail(NotAvailable.make({})))
+            );
         }))
         .handle("list", () => Effect.gen(function* (_) {
             const repo = yield* ProjectsRepo;

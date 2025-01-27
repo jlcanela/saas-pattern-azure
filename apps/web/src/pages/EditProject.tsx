@@ -1,5 +1,6 @@
 import {
   projectFindById,
+  projectFindUpdatesById,
   ProjectId,
   ProjectRequest,
   projectUpdate,
@@ -15,6 +16,10 @@ export const EditProject = () => {
     Effect.runPromise(projectFindById(ProjectId.make("1")))
   );
 
+  const [projectUpdates] = createResource(async () =>
+    Effect.runPromise(projectFindUpdatesById(ProjectId.make("1")))
+  );
+
   const onSubmit = async (data: any, errors: any) => {
     await projectUpdate({ id: "1", ...data }).pipe(Effect.runPromise);
     navigate(`/projects`);
@@ -28,6 +33,7 @@ export const EditProject = () => {
         data={project()}
         onSubmit={onSubmit}
       />
+      <pre>{JSON.stringify(projectUpdates(), null, 4)}</pre>
     </div>
   );
 };

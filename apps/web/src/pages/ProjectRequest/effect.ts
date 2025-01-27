@@ -1,4 +1,4 @@
-import { Console, Effect } from "effect";
+import { Effect } from "effect";
 import { projectsCreate } from "common";
 
 interface OnCreateProjectParams {
@@ -10,17 +10,6 @@ interface OnCreateProjectParams {
 
 export const onCreateProject = (params: OnCreateProjectParams): Effect.Effect<boolean, never, never> =>
     Effect.gen(function* (_) {
-        // if (audioRef === null) {
-        //     return yield* _(Effect.die("Missing audio ref" as const));
-        // }
-
         yield* projectsCreate(params);
-        yield* Console.log(`submitting project`);
-        //yield
         return true;
-        //return yield* _(Effect.sync(() => audioRef.pause()));
     }).pipe(Effect.catchAll(() => Effect.succeed(false)));
-// {
-//     "HttpApiDecodeError": (_) => Effect.succeed(true),
-//     "HttpClientError": (_) => Effect.succeed(true)
-// }));
