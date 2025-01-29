@@ -8,10 +8,12 @@ import { HttpMiddleware, HttpApiSwagger, HttpApiBuilder, HttpApiGroup, HttpApiEn
 import { createServer } from "node:http"
 import { WebAppRoutes } from "./WebApp.js"
 import { TracingLive } from "./Tracing.js"
-import { ProjectsRepo } from "./Projects/ProjectsRepo.js"
-import { ProjectRequest, Project, ProjectResponse, ProjectUpdate, ProjectsResponse } from 'common';
+//import { ProjectsRepo } from "./Projects/ProjectsRepo.js"
+import { ProjectRequest, Project, ProjectResponse, ProjectUpdate, ProjectsResponse, History } from 'common';
 
 import { NotAvailable } from "../../../packages/common/src/Domain/Project.js"
+import { ProjectsRepo } from "./Projects/ProjectsRepo.js"
+import { HistoryRepo } from "./Projects/HistoryRepo.js"
 
 const monitoringApi = HttpApiGroup.make("monitoring")
     .add(HttpApiEndpoint.get("ping")`/ping`.addSuccess(Schema.String))
@@ -38,8 +40,8 @@ const projectsApi = HttpApiGroup.make("projects")
         .addError(HttpApiError.NotFound, { status: 404 })
         .addError(NotAvailable, { status: 503 })
     )
-    .add(HttpApiEndpoint.get("findProjectUpdatesById")`/projects/${idParam}/updates`
-        .addSuccess(ProjectUpdate)
+    .add(HttpApiEndpoint.get("findProjectHistoryById")`/projects/${idParam}/history`
+        .addSuccess(History)
         .addError(HttpApiError.NotFound, { status: 404 })
         .addError(NotAvailable, { status: 503 }))
     .add(HttpApiEndpoint.get("list")`/projects`
@@ -79,13 +81,13 @@ const ProjectsApiLive = HttpApiBuilder.group(api, "projects", (handlers) =>
             );
             return message;
         }))
-        .handle("findProjectUpdatesById", ({ path: { id } }) => Effect.gen(function* (_) {
-            const repo = yield* ProjectsRepo;
-            return yield* repo.findUpdatesById(id).pipe(
-                Effect.flatMap(projectUpdates =>
-                    projectUpdates === null
+        .handle("findProjectHistoryById", ({ path: { id } }) => Effect.gen(function* (_) {
+            const repo = yield* HistoryRepo;
+            return yield* repo.findById(id).pipe(
+                Effect.flatMap(history =>
+                    history === null
                         ? Effect.fail(HttpApiError.NotFound)
-                        : Effect.succeed(ProjectUpdate.make(projectUpdates))
+                        : Effect.succeed(history)
                 ),
                 Effect.catchAll(() => Effect.fail(NotAvailable.make({})))
             );
@@ -114,6 +116,7 @@ export const HttpLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
     Layer.provide(HttpApiSwagger.layer()),
     Layer.provide(MyApiLive),
     Layer.provide(ProjectsRepo.live),
+    Layer.provide(HistoryRepo.live),
     Layer.provide(KeyValueStore.layerMemory),
     Layer.provide(WebAppRoutes),
     Layer.provide(ServerLive)

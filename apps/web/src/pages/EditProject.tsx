@@ -1,6 +1,6 @@
 import {
   projectFindById,
-  projectFindUpdatesById,
+  projectFindHistoryById,
   ProjectId,
   ProjectRequest,
   projectUpdate,
@@ -9,6 +9,7 @@ import { Effect } from "effect";
 import { createResource } from "solid-js";
 import BpmnForm from "../components/FormJs";
 import { useNavigate } from "@solidjs/router";
+import { Button } from "@suid/material";
 
 export const EditProject = () => {
   const navigate = useNavigate();
@@ -16,8 +17,8 @@ export const EditProject = () => {
     Effect.runPromise(projectFindById(ProjectId.make("1")))
   );
 
-  const [projectUpdates] = createResource(async () =>
-    Effect.runPromise(projectFindUpdatesById(ProjectId.make("1")))
+  const [history] = createResource(async () =>
+    Effect.runPromise(projectFindHistoryById(ProjectId.make("1")))
   );
 
   const onSubmit = async (data: any, errors: any) => {
@@ -33,7 +34,20 @@ export const EditProject = () => {
         data={project()}
         onSubmit={onSubmit}
       />
-      <pre>{JSON.stringify(projectUpdates(), null, 4)}</pre>
+      <Button
+        size="small"
+        color="primary"
+        onClick={() => navigate(`/projects/1/history`)}
+      >
+        History
+      </Button>
+      <Button
+        size="small"
+        color="primary"
+        onClick={() => navigate(`/projects`)}
+      >
+        Cancel
+      </Button>
     </div>
   );
 };

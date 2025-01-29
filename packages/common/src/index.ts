@@ -3,8 +3,11 @@ import { FetchHttpClient, HttpApi, HttpApiClient, HttpApiEndpoint, HttpApiError,
 import { Effect, Schema } from "effect"
 export * from "./Domain/Project.js";
 
+export * from "./Domain/History.js";
+
 import { NotAvailable, ProjectId, ProjectRequest, ProjectUpdate, Project, ProjectResponse, ProjectsResponse } from "./Domain/Project.js";
 import { PingResponse } from "./Domain/Health.js";
+import { History } from "./Domain/History.js";
 
 export const monitoringApi = HttpApiGroup.make("monitoring")
     .add(HttpApiEndpoint.get("ping")`/ping`.addSuccess(PingResponse))
@@ -23,8 +26,8 @@ export const projectsApi = HttpApiGroup.make("projects")
         .addError(HttpApiError.HttpApiDecodeError, { status: 400 })
         .addError(HttpApiError.NotFound, { status: 404 })
         .addError(NotAvailable, { status: 503 }))
-    .add(HttpApiEndpoint.get("findProjectUpdatesById")`/projects/${idParam}/updates`
-        .addSuccess(ProjectUpdate)
+    .add(HttpApiEndpoint.get("findProjectHistoryById")`/projects/${idParam}/history`
+        .addSuccess(History)
         .addError(HttpApiError.NotFound, { status: 404 })
         .addError(NotAvailable, { status: 503 }))
     .add(HttpApiEndpoint.get("list")`/projects`.addSuccess(ProjectsResponse))
@@ -64,9 +67,9 @@ export const projectUpdate = (payload: Project) => Effect.gen(function* () {
     });
 }).pipe(Effect.provide(FetchHttpClient.layer));
 
-export const projectFindUpdatesById = (id: ProjectId) => Effect.gen(function* () {
+export const projectFindHistoryById = (id: ProjectId) => Effect.gen(function* () {
     const client = yield* HttpApiClient.make(api, {
         baseUrl: "/",
     });
-    return yield* client.projects.findProjectUpdatesById({ path: { id } });
+    return yield* client.projects.findProjectHistoryById({ path: { id } });
 }).pipe(Effect.provide(FetchHttpClient.layer));

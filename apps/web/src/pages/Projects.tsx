@@ -55,6 +55,13 @@ export const Projects: Component<ProjectsProps> = (props) => {
                 >
                   Edit Project
                 </Button>
+                <Button
+                  size="small"
+                  color="primary"
+                  onClick={() => navigate(`/projects/${project.id}/history`)}
+                >
+                  View Project History
+                </Button>
               </CardActions>
             </Card>
           )}
