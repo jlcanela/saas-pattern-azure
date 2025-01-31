@@ -1,0 +1,21 @@
+name: Delete old container images
+
+on:
+  schedule:
+    - cron: "0 0 * * *"  # Runs at midnight every day
+  workflow_dispatch:      # Allows manual trigger
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write    # Required for deleting packages
+    steps:
+      - uses: snok/container-retention-policy@v3.0.0
+        with:
+          account: user
+          image-names: saas-pattern-azure
+          cut-off: 5d            # Remove images older than 5 days
+          keep-n-most-recent: 5  # Keep 5 most recent images
+          token: ${{ github.token }}
