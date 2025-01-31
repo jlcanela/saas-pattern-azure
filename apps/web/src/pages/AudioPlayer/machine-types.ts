@@ -1,4 +1,6 @@
-import { MachineParams } from "./types";
+/* eslint-disable @typescript-eslint/no-empty-object-type */
+
+import type { MachineParams } from "./types";
 
 export interface Context {
     readonly currentTime: number;

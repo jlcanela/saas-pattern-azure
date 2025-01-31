@@ -1,10 +1,8 @@
 import { useActor } from "@xstate/solid";
 import { machine } from "./machine";
 
-type AudioPlayerProps = {};
-
-export const AudioPlayer = (props: AudioPlayerProps) => {
-  const [state, send, actor] = useActor(machine, {
+export const AudioPlayer = () => {
+  const [state, send /*, actor*/] = useActor(machine, {
     input: {},
   });
 

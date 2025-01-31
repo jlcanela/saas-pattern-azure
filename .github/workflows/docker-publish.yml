@@ -32,11 +32,11 @@ jobs:
           node-version: 20
           cache: "pnpm"
 
-      - name: Security audit
-        run: pnpm audit
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Security audit
+        run: pnpm audit
 
       - name: Cache Turbo
         uses: actions/cache@v4
@@ -47,6 +47,9 @@ jobs:
           key: ${{ runner.os }}-turbo-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-turbo-
+
+      - name: Lint
+        run: pnpm turbo run lint
 
       - name: Build
         run: pnpm turbo run build

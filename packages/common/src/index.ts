@@ -1,13 +1,13 @@
-import { FetchHttpClient, HttpApi, HttpApiClient, HttpApiEndpoint, HttpApiError, HttpApiGroup, HttpApiSchema } from "@effect/platform";
-
 import { Effect, Schema } from "effect"
-export * from "./Domain/Project.js";
-
-export * from "./Domain/History.js";
-
-import { NotAvailable, ProjectId, ProjectRequest, ProjectUpdate, Project, ProjectResponse, ProjectsResponse } from "./Domain/Project.js";
+import { FetchHttpClient, HttpApi, HttpApiClient, HttpApiEndpoint, HttpApiError, HttpApiGroup, HttpApiSchema } from "@effect/platform";
+import type { ProjectId } from "./Domain/Project.js";
+import { NotAvailable, ProjectRequest, Project, ProjectResponse, ProjectsResponse } from "./Domain/Project.js";
 import { PingResponse } from "./Domain/Health.js";
 import { History } from "./Domain/History.js";
+
+export * from "./Domain/Project.js";
+export * from "./Domain/History.js";
+
 
 export const monitoringApi = HttpApiGroup.make("monitoring")
     .add(HttpApiEndpoint.get("ping")`/ping`.addSuccess(PingResponse))

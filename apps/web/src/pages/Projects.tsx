@@ -1,4 +1,5 @@
-import { Component, createEffect, createResource, For, Show } from "solid-js";
+import type { Component } from "solid-js";
+import { createResource, For, Show } from "solid-js";
 import {
   Card,
   CardContent,
@@ -14,9 +15,7 @@ import { Effect } from "effect";
 import { projectsList } from "common";
 import { useNavigate } from "@solidjs/router";
 
-interface ProjectsProps {}
-
-export const Projects: Component<ProjectsProps> = (props) => {
+export const Projects: Component = () => {
   const [projects] = createResource(async () =>
     Effect.runPromise(projectsList)
   );

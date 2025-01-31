@@ -1,5 +1,5 @@
 import { Console, Data, Effect } from "effect";
-import { Context } from "./machine-types";
+import type { Context } from "./machine-types";
 
 class OnLoadError extends Data.TaggedError("OnLoadError")<{
     context: Partial<Context>;
@@ -63,11 +63,11 @@ export const onLoad = ({
     });
 
 export const onPlay = ({
-    audioRef,
     audioContext,
+    audioRef,
 }: {
-    audioRef: HTMLAudioElement | null;
     audioContext: AudioContext | null;
+    audioRef: HTMLAudioElement | null;
 }): Effect.Effect<void, never, never> =>
     Effect.gen(function* (_) {
         if (audioRef === null) {

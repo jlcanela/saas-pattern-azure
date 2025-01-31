@@ -1,7 +1,9 @@
 import { assign, fromPromise, setup } from "xstate";
 import { Effect, Schema } from "effect"
 
-import { Context, Events, StateContext } from "./machine-types";
+import type { Context, Events } from "./machine-types";
+import { StateContext } from "./machine-types";
+
 import { ProjectRequest, projectsCreate } from "common";
 
 export const machine = setup({

@@ -1,8 +1,10 @@
-import { Form, Schema } from "@bpmn-io/form-js";
-export type { Schema } from "@bpmn-io/form-js";
-import { JSONSchema, Schema as S } from "effect";
-
+import type { Schema } from "@bpmn-io/form-js";
+import { Form } from "@bpmn-io/form-js";
+import type { Schema as S } from "effect";
+import { JSONSchema } from "effect";
 import { createEffect, onCleanup } from "solid-js";
+
+export type { Schema } from "@bpmn-io/form-js";
 
 export type OnSubmitCallback = (
   data: FormEvent["data"],
@@ -16,7 +18,7 @@ export interface Field {
 
 export interface FormFields {
   title: string;
-  form_fields: Field[];
+  form_fields: Array<Field>;
 }
 
 interface FormEvent {
@@ -84,7 +86,7 @@ export function createForm(
   onSubmit: OnSubmitCallback
 ): Form {
   const form = new Form({
-    container: container,
+    container,
   });
 
   form.importSchema(schema, data).then(() => {

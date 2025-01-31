@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { assign, setup } from "xstate";
 import { onError, onLoad, onPause, onPlay, onRestart } from "./effect";
-import { Context, Events } from "./machine-types";
+import type { Context, Events } from "./machine-types";
 
 export const machine = setup({
     types: {
@@ -9,7 +9,7 @@ export const machine = setup({
         context: {} as Context,
     },
     actions: {
-        onPlay: ({ context: { audioRef, audioContext } }) =>
+        onPlay: ({ context: { audioContext, audioRef } }) =>
             onPlay({ audioContext, audioRef }).pipe(Effect.runPromise),
         onPause: ({ context: { audioRef } }) =>
             onPause({ audioRef }).pipe(Effect.runSync),

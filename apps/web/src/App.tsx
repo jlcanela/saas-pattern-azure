@@ -1,9 +1,6 @@
-//import type { Component } from "solid-js";
 import { Route, Router } from "@solidjs/router";
 
-import { ThemeProvider } from "@suid/material/styles";
-import { createTheme } from "@suid/material/styles";
-//import FormJs from "./pages/FormJs";
+import { createTheme, ThemeProvider } from "@suid/material/styles";
 import { Header } from "./components/Header.jsx";
 import { Box } from "@suid/material";
 import Home from "./pages/Home";

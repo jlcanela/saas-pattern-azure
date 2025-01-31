@@ -6,6 +6,7 @@
   "scripts": {
     "start": "vite",
     "dev": "vite",
+    "lint": "eslint . -c eslint.config.mjs",
     "build": "vite build",
     "serve": "vite preview"
   },
@@ -24,6 +25,7 @@
     "@suid/material": "^0.18.0",
     "@types/json-schema": "^7.0.15",
     "@xstate/solid": "^1.0.1",
+    "eslint-config-custom": "workspace:*",
     "common": "workspace:^",
     "effect": "^3.12.5",
     "json-schema": "^0.4.0",

@@ -1,5 +1,5 @@
-import { Component } from "solid-js";
-import { A } from "@solidjs/router";
+import type { Component } from "solid-js";
+import { A, useLocation } from "@solidjs/router";
 import MenuIcon from "@suid/icons-material/Menu";
 import { FaBrandsGithub } from "solid-icons/fa";
 import {
@@ -10,7 +10,6 @@ import {
   Toolbar,
   Typography,
 } from "@suid/material";
-import { useLocation } from "@solidjs/router";
 
 interface NavButtonProps {
   href: string;
@@ -70,7 +69,7 @@ const NavButton: Component<NavButtonProps> = (props) => {
 export function Header() {
   //const base = import.meta.env.MODE === 'production' ? '/project-ui' : '';
 
-  const navItems: NavItem[] = [
+  const navItems: Array<NavItem> = [
     //{ href: "/project-requests", label: "Requests" },
     //{ href: "/audio-player", label: "Audio Player" },
     { href: "/request-project", label: "Request Project" },

@@ -1,9 +1,10 @@
 import { useActor } from "@xstate/solid";
 import { machine } from "./machine";
-import BpmnForm, { hasErrors } from "../../components/FormJs";
-import { Events, StateContext } from "./machine-types";
+import BpmnForm from "../../components/FormJs";
+import type { Events } from "./machine-types";
+import { StateContext } from "./machine-types";
 import { createEffect, createMemo } from "solid-js";
-import { BackButton, FormButton } from "./Buttons";
+import { BackButton } from "./Buttons";
 import { Confirmation } from "./Confirmation";
 
 const STORAGE_KEY = "workflow-state";
@@ -62,7 +63,7 @@ export const ProjectRequest = () => {
           key={state.value}
           schema={schema()}
           data={{}}
-          onSubmit={(data, errors) => {
+          onSubmit={(data /*, errors*/) => {
             if (state.value !== "complete" && state.value !== "submitting") {
               onSubmit(state.value, data);
             }

@@ -1,7 +1,6 @@
 import { useNavigate } from "@solidjs/router";
-import { Button } from "@suid/material";
+import { Button, Box, Typography } from "@suid/material";
 import { CheckCircle } from "@suid/icons-material";
-import { Box, Typography } from "@suid/material";
 import { green } from "@suid/material/colors";
 
 interface ConfirmationProps {

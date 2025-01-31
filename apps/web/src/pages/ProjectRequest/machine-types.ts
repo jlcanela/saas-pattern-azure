@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
+
 import { ProjectInfo, ProjectObjective } from "common";
-import { MachineParams } from "./types";
+import type { MachineParams } from "./types";
 import { Schema } from "effect";
 
 export const StateContext = Schema.Struct({
