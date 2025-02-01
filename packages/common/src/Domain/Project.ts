@@ -1,4 +1,5 @@
-import { FastCheck, Schema } from "effect"
+import type { FastCheck } from "effect";
+import { Schema } from "effect"
 import { faker} from "@faker-js/faker";
 import { LazyArbitrary } from "effect/Arbitrary";
 

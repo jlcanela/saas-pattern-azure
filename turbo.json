@@ -12,6 +12,9 @@
     "lint": {
       "dependsOn": ["^lint"]
     },
+    "test:coverage": {
+      "dependsOn": ["^test:coverage"]
+    },
     "check": {},
     "dev": {
       "dependsOn": ["^build"],

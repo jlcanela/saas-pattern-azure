@@ -10,7 +10,8 @@
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",
     "dev": "tsx --watch src/index.ts ../web/dist",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [],
   "author": "",
@@ -33,15 +34,16 @@
     "@babel/plugin-transform-modules-commonjs": "^7.24.8",
     "@effect/build-utils": "^0.7.7",
     "@effect/language-service": "^0.1.0",
-    "@effect/vitest": "latest",
-    "@types/node": "^22.5.2",
-    "eslint-config-custom": "workspace:*",
-    "tsx": "^4.17.0",
-    "typescript": "^5.6.2",
-    "vitest": "^2.0.5",
+    "@effect/vitest": "^0.17.3",
     "@tsconfig/node18": "^18.2.4",
+    "@types/node": "^22.5.2",
+    "@vitest/coverage-v8": "2.1.8",
+    "eslint-config-custom": "workspace:*",
     "fast-json-patch": "^3.1.1",
     "prettier": "^3.2.5",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "tsx": "^4.17.0",
+    "typescript": "^5.6.2",
+    "vitest": "^2.1.8"
   }
 }

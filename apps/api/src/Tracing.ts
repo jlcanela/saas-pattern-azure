@@ -1,6 +1,6 @@
 import * as NodeSdk from "@effect/opentelemetry/NodeSdk"
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http"
-import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base"
+import { BatchSpanProcessor, ConsoleSpanExporter } from "@opentelemetry/sdk-trace-base"
 import { Config, Effect, Layer, Redacted } from "effect"
 
 export const TracingLive = Layer.unwrapEffect(
@@ -27,7 +27,7 @@ export const TracingLive = Layer.unwrapEffect(
       }))
     }
 
-    const headers = {
+    const _headers = {
       "X-Honeycomb-Team": Redacted.value(apiKey.value),
       "X-Honeycomb-Dataset": dataset
     }
@@ -37,10 +37,11 @@ export const TracingLive = Layer.unwrapEffect(
         serviceName: dataset
       },
       spanProcessor: new BatchSpanProcessor(
-        new OTLPTraceExporter({
-          url: "https://api.honeycomb.io/v1/traces",
-          headers
-        })
+        new ConsoleSpanExporter()
+        // new OTLPTraceExporter({
+        //   url: "https://api.honeycomb.io/v1/traces",
+        //   headers
+        // })
       )
     }))
   })

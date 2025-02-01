@@ -51,6 +51,9 @@ jobs:
       - name: Lint
         run: pnpm turbo run lint
 
+      - name: Test
+        run: pnpm turbo run test:coverage
+
       - name: Build
         run: pnpm turbo run build
 

@@ -1,11 +1,10 @@
 // src/main.ts
-import { Effect, Layer, Schema } from "effect"
+import { Effect, Layer, Option, Schema } from "effect"
 
 import { HttpApi, HttpApiBuilder, HttpApiEndpoint, HttpApiError, HttpApiGroup, HttpApiSchema } from "@effect/platform"
 
 import { History, Project, ProjectRequest, ProjectResponse, ProjectsResponse } from "common"
 
-import { NotAvailable } from "../../../packages/common/src/Domain/Project.js"
 import { HistoryRepo } from "./Projects/HistoryRepo.js"
 import { ProjectsRepo } from "./Projects/ProjectsRepo.js"
 
@@ -15,94 +14,116 @@ const monitoringApi = HttpApiGroup.make("monitoring")
 
 const idParam = HttpApiSchema.param("id", Schema.String.pipe(Schema.brand("ProjectId")))
 
+//  HttpApiDecodeError | BadRequest | InternalServerError
 const projectsApi = HttpApiGroup.make("projects")
+  .addError(HttpApiError.InternalServerError, { status: 503 })
   .add(
     HttpApiEndpoint.post("create")`/projects`
       .setPayload(ProjectRequest)
       .addSuccess(Schema.String)
-      .addError(HttpApiError.HttpApiDecodeError, { status: 400 })
-      .addError(HttpApiError.NotFound, { status: 404 })
-      .addError(NotAvailable, { status: 503 })
+      .addError(HttpApiError.HttpApiDecodeError)
+      .addError(HttpApiError.BadRequest)
+      .addError(HttpApiError.InternalServerError)
   )
   .add(
     HttpApiEndpoint.get("findById")`/projects/${idParam}/edit`
       .addSuccess(ProjectResponse)
-      .addError(HttpApiError.NotFound, { status: 404 })
-      .addError(NotAvailable, { status: 503 })
+      .addError(HttpApiError.NotFound)
+      .addError(HttpApiError.HttpApiDecodeError)
+      .addError(HttpApiError.BadRequest)
+      .addError(HttpApiError.InternalServerError)
   )
   .add(
     HttpApiEndpoint.post("update")`/projects/${idParam}`
       .setPayload(Project)
-      .addSuccess(Schema.String)
-      .addError(HttpApiError.HttpApiDecodeError, { status: 400 })
-      .addError(HttpApiError.NotFound, { status: 404 })
-      .addError(NotAvailable, { status: 503 })
+      .addSuccess(ProjectResponse)
+      .addError(HttpApiError.HttpApiDecodeError)
+      .addError(HttpApiError.BadRequest)
+      .addError(HttpApiError.InternalServerError)
   )
   .add(
     HttpApiEndpoint.get("findProjectHistoryById")`/projects/${idParam}/history`
       .addSuccess(History)
-      .addError(HttpApiError.HttpApiDecodeError, { status: 400 })
-      .addError(HttpApiError.NotFound, { status: 404 })
+      .addError(HttpApiError.HttpApiDecodeError)
+      .addError(HttpApiError.BadRequest)
+      .addError(HttpApiError.InternalServerError)
+      .addError(HttpApiError.NotFound)
   )
   .add(
     HttpApiEndpoint.get("list")`/projects`
       .addSuccess(ProjectsResponse)
-      .addError(NotAvailable, { status: 503 })
+      .addError(HttpApiError.HttpApiDecodeError)
+      .addError(HttpApiError.BadRequest)
+      .addError(HttpApiError.InternalServerError)
   )
 
 export const api = HttpApi.make("MainApi").add(projectsApi).add(monitoringApi).prefix("/api")
 
+const createProject = (payload: ProjectRequest) => Effect.gen(function*(_) {
+  const repo = yield* ProjectsRepo
+  return yield* repo.create(payload).pipe(
+    Effect.map(() => `Project '${payload.project_name}' created`))
+}).pipe(
+  Effect.catchTag("ParseError", (error) => Effect.flip(HttpApiError.HttpApiDecodeError.fromParseError(error))),
+  Effect.catchTag("BadArgument", () => Effect.fail(new HttpApiError.BadRequest())),
+  Effect.catchTag("SystemError", () => Effect.fail(new HttpApiError.InternalServerError())),
+)
+
+const findById = (id: string) => Effect.gen(function*(_) {
+  const repo = yield* ProjectsRepo
+  const project = yield* repo.findById(id)
+  return yield* Option.match(project, {
+      onNone: () => Effect.fail(new HttpApiError.NotFound()),
+      onSome: (project) => Effect.succeed(project)
+    })
+  }).pipe(
+    Effect.catchTag("ParseError", (error) => Effect.flip(HttpApiError.HttpApiDecodeError.fromParseError(error))),
+    Effect.catchTag("BadArgument", () => Effect.fail(new HttpApiError.BadRequest())),
+    Effect.catchTag("SystemError", () => Effect.fail(new HttpApiError.InternalServerError())),
+  )
+
+const update = (payload: Project) =>
+    Effect.gen(function*(_) {
+      const repo = yield* ProjectsRepo
+      return yield* repo.update(payload)
+    }).pipe(
+      Effect.catchTag("ParseError", (error) => Effect.flip(HttpApiError.HttpApiDecodeError.fromParseError(error))),
+      Effect.catchTag("BadArgument", () => Effect.fail(new HttpApiError.BadRequest())),
+      Effect.catchTag("SystemError", () => Effect.fail(new HttpApiError.InternalServerError())),
+  )
+
+const findProjectHistoryById = (id: string) => Effect.gen(function*(_) {
+  const repo = yield* HistoryRepo
+  return yield* repo.findById(id).pipe(
+    Effect.flatMap((history) => history)
+    //  Option.isSome(history) ? Effect.succeed(history) : Effect.fail(HttpApiError.NotFound)
+    )
+}).pipe(
+  Effect.catchTag("ParseError", (error) => Effect.flip(HttpApiError.HttpApiDecodeError.fromParseError(error))),
+  Effect.catchTag("BadArgument", () => Effect.fail(new HttpApiError.BadRequest())),
+  Effect.catchTag("SystemError", () => Effect.fail(new HttpApiError.InternalServerError())),
+  Effect.catchTag("NoSuchElementException", () => Effect.fail(new HttpApiError.NotFound()))
+)
+
+const listProject = () => Effect.gen(function*(_) {
+  const repo = yield* ProjectsRepo
+  const projects = yield* repo.list()
+  return ProjectsResponse.make({ projects })
+
+}).pipe(
+  Effect.catchTag("ParseError", (error) => Effect.flip(HttpApiError.HttpApiDecodeError.fromParseError(error))),
+  Effect.catchTag("BadArgument", () => Effect.fail(new HttpApiError.BadRequest())),
+  Effect.catchTag("SystemError", () => Effect.fail(new HttpApiError.InternalServerError())),
+)
+
 const ProjectsApiLive = HttpApiBuilder.group(api, "projects", (handlers) =>
   handlers
-    .handle("create", (req) =>
-      Effect.gen(function*(_) {
-        const repo = yield* ProjectsRepo
-        const message = yield* repo.create(req.payload).pipe(
-          Effect.map(() => `Project '${req.payload.project_name}' created`),
-          Effect.catchAll(() => Effect.fail(NotAvailable.make({})))
-        )
-        return message
-      }))
-    .handle("findById", ({ path: { id } }) =>
-      Effect.gen(function*(_) {
-        const repo = yield* ProjectsRepo
-        return yield* repo.findById(id).pipe(
-          Effect.flatMap((project) =>
-            project === null
-              ? Effect.fail(HttpApiError.NotFound)
-              : Effect.succeed(ProjectResponse.make(project))
-          ),
-          // Effect.catchTag("HttpApiDecodeError", () => Effect.fail(NotAvailable.make({})))
-          Effect.catchAll(() => Effect.fail(NotAvailable.make({})))
-        )
-      }))
-    .handle("update", (req) =>
-      Effect.gen(function*(_) {
-        const repo = yield* ProjectsRepo
-        const message = yield* repo.update(req.payload).pipe(
-          Effect.map(() => `Project '${req.payload.project_name}' updated`),
-          Effect.catchAll(() => Effect.fail(NotAvailable.make({})))
-        )
-        return message
-      }))
-    .handle("findProjectHistoryById", ({ path: { id } }) =>
-      Effect.gen(function*(_) {
-        const repo = yield* HistoryRepo
-        return yield* repo.findById(id).pipe(
-          Effect.flatMap((history) =>
-            history === null
-              ? Effect.fail(HttpApiError.NotFound)
-              : Effect.succeed(history)
-          ),
-          Effect.catchAll(() => Effect.fail(new HttpApiError.NotFound()))
-        )
-      }))
-    .handle("list", () =>
-      Effect.gen(function*(_) {
-        const repo = yield* ProjectsRepo
-        const p = yield* repo.list().pipe(Effect.catchAll(() => Effect.fail(NotAvailable.make({}))))
-        return ProjectsResponse.make({ projects: p })
-      })))
+    .handle("create", (req) => createProject(req.payload))
+    .handle("findById", ({ path: { id } }) => findById(id))
+    .handle("update", (req) => update(req.payload))
+    .handle("findProjectHistoryById", ({ path: { id } }) => findProjectHistoryById(id))
+    .handle("list", () => listProject())
+  )      
 
 const MonitoringApiLive = HttpApiBuilder.group(api, "monitoring", (handlers) =>
   handlers
