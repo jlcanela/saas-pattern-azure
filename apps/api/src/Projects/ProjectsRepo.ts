@@ -18,6 +18,7 @@ export class ProjectsRepo extends Context.Tag("ProjectsRepo")<
     update: (project: Project) => Effect.Effect<Project, PlatformError | ParseError>
     findHistoryById: (id: string) => Effect.Effect<Option.Option<History>, PlatformError | ParseError>
     list: () => Effect.Effect<Array<Project>, PlatformError | ParseError>
+    fake: () => Effect.Effect<Project, PlatformError | ParseError>
   }
 >() {
   static live = Layer.effect(
@@ -49,16 +50,9 @@ export class ProjectsRepo extends Context.Tag("ProjectsRepo")<
             }
             return yield* baseRepo.update(project)
           }),
-        findHistoryById: (id) => historyRepo.findById(id)
+        findHistoryById: (id) => historyRepo.findById(id),
+        fake: () => repo.create(FastCheck.sample(Arbitrary.make(ProjectResponse), 1)[0]) 
       })
-
-      // Create fake project if store is empty
-      const size = yield* baseRepo.size()
-      if (size === 0) {
-        const arb = Arbitrary.make(ProjectResponse)
-        const fakeProject = FastCheck.sample(arb, 1)
-        yield* repo.create(fakeProject[0])
-      }
 
       return repo
     })

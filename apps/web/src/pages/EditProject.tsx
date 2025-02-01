@@ -16,10 +16,6 @@ export const EditProject = () => {
     Effect.runPromise(projectFindById(ProjectId.make("1")))
   );
 
-  // const [history] = createResource(async () =>
-  //   Effect.runPromise(projectFindHistoryById(ProjectId.make("1")))
-  // );
-
   const onSubmit = async (data: any /*, errors: any*/) => {
     await projectUpdate({ id: "1", ...data }).pipe(Effect.runPromise);
     navigate(`/projects`);

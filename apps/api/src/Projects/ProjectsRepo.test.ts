@@ -5,12 +5,13 @@ import { it } from "@effect/vitest"
 
 import { ProjectsRepo } from "./ProjectsRepo.js"
 
+import type { ProjectResponse } from "common"
 import { ProjectRequest } from "common"
 import { HistoryRepo } from "./HistoryRepo.js"
 
 const TestLayer = ProjectsRepo.live
   .pipe(Layer.provide(HistoryRepo.live))
-  .pipe(Layer.provide(KeyValueStore.layerMemory))
+  .pipe(Layer.provide(Layer.fresh(KeyValueStore.layerMemory)))
 
 const createProject = Effect.gen(function*(_) {
   const _repo = yield* ProjectsRepo
@@ -18,13 +19,14 @@ const createProject = Effect.gen(function*(_) {
   const project = FastCheck.sample(arb, 1)[0]
   return { _1: project, _2: yield* _repo.create(project) }
 })
+
 it.effect("should create a project", () =>
   pipe(
     Effect.gen(function*(_) {
       const { _1: project, _2: created } = yield* createProject
       return expect(created).toMatchObject({
         ...project,
-        id: "2" // Repo is auto creating a project, so id of newly created must be ${entityType}_${size+1}
+        id: "1"
       })
     }),
     Effect.provide(TestLayer)
@@ -49,7 +51,7 @@ it.effect("update without change should not create an history", () =>
     expect(Option.isNone(history)).toBeTruthy()
   }).pipe(Effect.provide(TestLayer)))
 
-it.live("update with change should create an history", () =>
+it.effect("update with change should create an history", () =>
   Effect.gen(function*(_) {
     const repo = yield* ProjectsRepo
     const updated = yield* Effect.gen(function*(_) {
@@ -61,22 +63,21 @@ it.live("update with change should create an history", () =>
     expect(Option.isSome(history)).toBeTruthy()
   }).pipe(Effect.provide(TestLayer)))
 
-// // Test listing projects
-// it.effect("should list all projects", () =>
-//     Effect.gen(function* (_) {
-//         const repo = yield* ProjectsRepo
-//         const project1 = yield* repo.create({
-//             name: "Project 1",
-//             description: "Description 1"
-//         })
-//         const project2 = yield* repo.create({
-//             name: "Project 2",
-//             description: "Description 2"
-//         })
+// Test listing projects
+it.live("should list all projects", () =>
+    Effect.gen(function* (_) {
+        const repo = yield* ProjectsRepo
+        const arb = Arbitrary.make(ProjectRequest)
+        const projects = FastCheck.sample(arb, 2)
 
-//         const projects = yield* repo.list()
+        const allCreated = new Array<ProjectResponse>()
+        for (const idx in Object.keys(projects)) {
+          const created = yield* repo.create(projects[idx])
+          allCreated.push(created)
+        }
 
-//         expect(projects).toContainEqual(project1)
-//         expect(projects).toContainEqual(project2)
-//     }).pipe(Effect.provide(TestLayer))
-// )
+        const list = yield* repo.list()
+
+        expect(allCreated).toStrictEqual(list)
+    }).pipe(Effect.provide(TestLayer))
+)
