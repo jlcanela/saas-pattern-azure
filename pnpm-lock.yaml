@@ -164,6 +164,9 @@ importers:
       '@effect/platform':
         specifier: ^0.75.0
         version: 0.75.1(effect@3.12.7)
+      '@faker-js/faker':
+        specifier: ^9.4.0
+        version: 9.4.0
       effect:
         specifier: ^3.12.6
         version: 3.12.7
@@ -1551,6 +1554,11 @@ packages:
       '@eslint/core': 0.10.0
       levn: 0.4.1
     dev: true
+
+  /@faker-js/faker@9.4.0:
+    resolution: {integrity: sha512-85+k0AxaZSTowL0gXp8zYWDIrWclTbRPg/pm/V0dSFZ6W6D4lhcG3uuZl4zLsEKfEvs69xDbLN2cHQudwp95JA==}
+    engines: {node: '>=18.0.0', npm: '>=9.0.0'}
+    dev: false
 
   /@humanfs/core@0.19.1:
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}

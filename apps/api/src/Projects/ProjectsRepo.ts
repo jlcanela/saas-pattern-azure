@@ -3,19 +3,12 @@ import { KeyValueStore } from "@effect/platform"
 import type { PlatformError } from "@effect/platform/Error"
 import type { History } from "common"
 import { ProjectResponse } from "common"
-import { Context, Effect, Layer } from "effect"
+import { Arbitrary, Context, Effect, FastCheck, Layer } from "effect"
 import type { ParseError } from "effect/ParseResult"
 import { BaseRepo } from "../lib/BaseRepo.js"
 import { HistoryRepo } from "./HistoryRepo.js"
 
 type Project = typeof ProjectResponse.Type
-
-const fakeProject: Omit<Project, "id"> = {
-  project_name: "Demo Project",
-  project_description: "This is an automatically created demo project",
-  project_objective: "Demonstrate the application features",
-  project_stakeholders: "Development team"
-}
 
 export class ProjectsRepo extends Context.Tag("ProjectsRepo")<
   ProjectsRepo,
@@ -29,7 +22,7 @@ export class ProjectsRepo extends Context.Tag("ProjectsRepo")<
 >() {
   static live = Layer.effect(
     ProjectsRepo,
-    Effect.gen(function* (_) {
+    Effect.gen(function*(_) {
       const store = yield* KeyValueStore.KeyValueStore
       const baseRepo = new BaseRepo("project", store, ProjectResponse)
       const history = yield* HistoryRepo
@@ -39,7 +32,7 @@ export class ProjectsRepo extends Context.Tag("ProjectsRepo")<
         findById: baseRepo.findById,
         list: baseRepo.list,
         update: (project: Project) =>
-          Effect.gen(function* (_) {
+          Effect.gen(function*(_) {
             const oldValue = yield* baseRepo.findById(project.id)
             yield* history.create(
               {
@@ -57,7 +50,9 @@ export class ProjectsRepo extends Context.Tag("ProjectsRepo")<
       // Create fake project if store is empty
       const size = yield* baseRepo.size()
       if (size === 0) {
-        yield* repo.create(fakeProject)
+        const arb = Arbitrary.make(ProjectResponse)
+        const fakeProject = FastCheck.sample(arb, 1)
+        yield* repo.create(fakeProject[0])
       }
 
       return repo

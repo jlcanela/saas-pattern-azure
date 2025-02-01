@@ -55,8 +55,8 @@ const projectsApi = HttpApiGroup.make("projects")
   .add(
     HttpApiEndpoint.get("findProjectHistoryById")`/projects/${idParam}/history`
       .addSuccess(History)
+      .addError(HttpApiError.HttpApiDecodeError, { status: 400 })
       .addError(HttpApiError.NotFound, { status: 404 })
-      .addError(NotAvailable, { status: 503 })
   )
   .add(
     HttpApiEndpoint.get("list")`/projects`
@@ -86,6 +86,7 @@ const ProjectsApiLive = HttpApiBuilder.group(api, "projects", (handlers) =>
               ? Effect.fail(HttpApiError.NotFound)
               : Effect.succeed(ProjectResponse.make(project))
           ),
+          // Effect.catchTag("HttpApiDecodeError", () => Effect.fail(NotAvailable.make({})))
           Effect.catchAll(() => Effect.fail(NotAvailable.make({})))
         )
       }))
@@ -107,7 +108,7 @@ const ProjectsApiLive = HttpApiBuilder.group(api, "projects", (handlers) =>
               ? Effect.fail(HttpApiError.NotFound)
               : Effect.succeed(history)
           ),
-          Effect.catchAll(() => Effect.fail(NotAvailable.make({})))
+          Effect.catchAll(() => Effect.fail(new HttpApiError.NotFound()))
         )
       }))
     .handle("list", () =>

@@ -10,11 +10,12 @@
   },
   "dependencies": {
     "@effect/platform": "^0.75.0",
+    "@faker-js/faker": "^9.4.0",
     "effect": "^3.12.6"
   },
   "devDependencies": {
     "@tsconfig/node21": "^21.0.3",
-    "typescript": "^5.5.4",
-    "eslint-config-custom": "workspace:*"
+    "eslint-config-custom": "workspace:*",
+    "typescript": "^5.5.4"
   }
 }

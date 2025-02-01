@@ -1,19 +1,42 @@
-import { Schema } from "effect"
+import { FastCheck, Schema } from "effect"
+import { faker} from "@faker-js/faker";
+import { LazyArbitrary } from "effect/Arbitrary";
 
 export const ProjectId = Schema.String.pipe(Schema.brand("ProjectId"))
 export type ProjectId = typeof ProjectId.Type
 
+type F<A> = (f: typeof faker) => A;
+
+function g<A>(f: F<A>): () => LazyArbitrary<A> {
+  return () => (fc: typeof FastCheck) => fc.constant(null).map(() => f(faker)) 
+} 
+
 export const ProjectRequest = Schema.Struct({
-  project_name: Schema.String.annotations({ title: "Project Name" }),
-  project_description: Schema.String.annotations({ title: "Project Description" }),
-  project_objective: Schema.String.annotations({ title: "Project Objective" }),
-  project_stakeholders: Schema.String.annotations({ title: "Project Stakeholders" })
+  project_name: Schema.String.annotations({ 
+    title: "Project Name",
+    arbitrary: g((faker) => faker.lorem.words(2)) 
+  }),
+  project_description: Schema.String.annotations({ 
+    title: "Project Description",
+    arbitrary: g((faker) => faker.lorem.sentence())
+  }),
+  project_objective: Schema.String.annotations({ 
+    title: "Project Objective",
+    arbitrary: g((faker) => faker.lorem.words(3))
+  }),
+  project_stakeholders: Schema.String.annotations({ 
+    title: "Project Stakeholders",
+    arbitrary: g((faker) => `${faker.person.fullName()}, ${faker.person.fullName()}`)
+   })
 })
 
 export type ProjectRequest = typeof ProjectRequest.Type
 
 export const ProjectResponse = Schema.Struct({
-  id: ProjectId,
+  id: ProjectId.annotations({ 
+    title: "Project Id",
+    arbitrary: g((faker) => ProjectId.make(faker.animal.petName()))
+  }),
   ...ProjectRequest.fields
 })
 export type ProjectResponse = typeof ProjectResponse.Type
