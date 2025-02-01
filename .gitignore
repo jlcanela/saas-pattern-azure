@@ -23,7 +23,9 @@ coverage
 *.njsproj
 *.sln
 *.sw?
+*.txt
 
 _vrac
 .turbo
 .env
+/test

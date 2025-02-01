@@ -4,6 +4,18 @@ import suidPlugin from "@suid/vite-plugin";
 
 export default defineConfig({
   plugins: [suidPlugin(), solidPlugin()],
+  test: {
+    host: "0.0.0.0",
+    environment: "jsdom",
+    globals: true,
+    transformMode: {
+      web: [/\.[jt]sx?$/],
+    },
+    setupFiles: "./setupTests.tsx",
+  },
+  resolve: {
+    conditions: ["development", "browser"],
+  },
   server: {
     proxy: {
       "/api": {

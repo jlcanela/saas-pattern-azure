@@ -23,7 +23,7 @@ function Hero() {
       </Typography>
       <Button
         component={A}
-        href="./request-project"
+        href="/request-project"
         variant="contained"
         color="primary"
         size="large"

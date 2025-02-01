@@ -1,7 +1,7 @@
 import type { FastCheck } from "effect";
 import { Schema } from "effect"
 import { faker} from "@faker-js/faker";
-import { LazyArbitrary } from "effect/Arbitrary";
+import type { LazyArbitrary } from "effect/Arbitrary";
 
 export const ProjectId = Schema.String.pipe(Schema.brand("ProjectId"))
 export type ProjectId = typeof ProjectId.Type
