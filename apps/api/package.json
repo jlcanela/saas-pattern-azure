@@ -9,14 +9,15 @@
     "lint": "eslint . -c eslint.config.mjs",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",
-    "dev": "tsx --watch src/index.ts ../web/dist",
-    "test": "vitest",
+    "dev": "NODE_OPTIONS='--experimental-wasm-modules' tsx --watch src/index.ts ../web/dist",
+    "test": "vitest  --disableConsoleIntercept=false",
     "test:coverage": "vitest run --coverage"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@cedar-policy/cedar-wasm": "4.3.0",
     "@effect/opentelemetry": "^0.42.7",
     "@effect/platform": "^0.74.0",
     "@effect/platform-node": "^0.70.0",
@@ -44,6 +45,8 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.17.0",
     "typescript": "^5.6.2",
+    "vite-plugin-top-level-await": "^1.4.4",
+    "vite-plugin-wasm": "^3.4.1",
     "vitest": "^2.1.8"
   }
 }

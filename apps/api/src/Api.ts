@@ -8,13 +8,18 @@ import { History, Project, ProjectRequest, ProjectResponse, ProjectsResponse } f
 import { HistoryRepo } from "./Projects/HistoryRepo.js"
 import { ProjectsRepo } from "./Projects/ProjectsRepo.js"
 
+import { AuthorizationResult, AuthRequest, Permission } from "./lib/Permission/index.js"
+
 // TOFIX: This is a workaround for typescript error when importing API from common
 const monitoringApi = HttpApiGroup.make("monitoring")
   .add(HttpApiEndpoint.get("ping")`/ping`.addSuccess(Schema.String))
+  .add(HttpApiEndpoint.get("config")`/config`.addSuccess(Schema.String))
+  .add(HttpApiEndpoint.post("auth")`/auth`.setPayload(AuthRequest).addSuccess(AuthorizationResult))
+
 
 const idParam = HttpApiSchema.param("id", Schema.String.pipe(Schema.brand("ProjectId")))
 
-//  HttpApiDecodeError | BadRequest | InternalServerError
+// HttpApiDecodeError | BadRequest | InternalServerError
 const projectsApi = HttpApiGroup.make("projects")
   .addError(HttpApiError.InternalServerError, { status: 503 })
   .add(
@@ -26,7 +31,7 @@ const projectsApi = HttpApiGroup.make("projects")
       .addError(HttpApiError.InternalServerError)
   )
   .add(
-    HttpApiEndpoint.get("findById")`/projects/${idParam}/edit`
+    HttpApiEndpoint.get("findById")`/projects/${idParam}`
       .addSuccess(ProjectResponse)
       .addError(HttpApiError.NotFound)
       .addError(HttpApiError.HttpApiDecodeError)
@@ -125,11 +130,29 @@ const ProjectsApiLive = HttpApiBuilder.group(api, "projects", (handlers) =>
     .handle("list", () => listProject())
   )      
 
+const config = () => Effect.gen(function*(_) {
+  const perm = yield* Permission
+  return yield* perm.version()
+})
+
+const auth = (authRequest: AuthRequest) => Effect.gen(function*(_) {
+  const perm = yield* Permission
+  // const principal: Principal = { type: "user", id: "1"}
+  // const action: Action = { type: "read", id: "1"}
+  // const resource: Resource = { type: "project", id: "1"}
+  // const context = { }
+
+  return yield* perm.auth(authRequest)
+})
+
 const MonitoringApiLive = HttpApiBuilder.group(api, "monitoring", (handlers) =>
   handlers
-    .handle("ping", (_req) => Effect.succeed("pong")))
+    .handle("ping", (_req) => Effect.succeed("pong"))
+    .handle("config", config)
+    .handle("auth", (req) => auth(req.payload)))
 
 export const MyApiLive = HttpApiBuilder.api(api).pipe(
   Layer.provide(ProjectsApiLive),
-  Layer.provide(MonitoringApiLive)
+  Layer.provide(MonitoringApiLive),
+  Layer.provide(Permission.live),
 )

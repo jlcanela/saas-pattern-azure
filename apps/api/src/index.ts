@@ -11,6 +11,7 @@ import { WebAppRoutes } from "./WebApp.js"
 import { MyApiLive } from "./Api.js"
 import { HistoryRepo } from "./Projects/HistoryRepo.js"
 import { ProjectsRepo } from "./Projects/ProjectsRepo.js"
+import { Permission } from "./lib/Permission/index.js"
 
 class InitService extends Context.Tag("InitService")<
 InitService,
@@ -20,6 +21,7 @@ InitService,
     Effect.gen(function*(_) {
       const projectRepo = yield* ProjectsRepo
       yield* projectRepo.fake()
+
       return ({
         info: () => {}
       });
@@ -38,6 +40,7 @@ export const HttpLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(KeyValueStore.layerMemory),
   Layer.provide(WebAppRoutes),
   Layer.provide(ServerLive),
+  Layer.provide(Permission.live)
 )
 
 const httpServer = Layer.launch(HttpLive)

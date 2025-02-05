@@ -6,7 +6,8 @@
   "scripts": {
     "start": "vite",
     "dev": "vite",
-    "test": "vitest --ui",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "lint": "eslint . -c eslint.config.mjs",
     "build": "vite build",

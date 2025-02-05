@@ -5,6 +5,7 @@ import suidPlugin from "@suid/vite-plugin";
 export default defineConfig({
   plugins: [suidPlugin(), solidPlugin()],
   test: {
+    watch: false,
     host: "0.0.0.0",
     environment: "jsdom",
     globals: true,

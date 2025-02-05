@@ -5,14 +5,14 @@ import { NotAvailable, ProjectRequest, Project, ProjectResponse, ProjectsRespons
 import { PingResponse } from "./Domain/Health.js";
 import { History } from "./Domain/History.js";
 
-const monitoringApi = HttpApiGroup.make("monitoring")
+export const monitoringApi = HttpApiGroup.make("monitoring")
     .add(HttpApiEndpoint.get("ping")`/ping`.addSuccess(PingResponse))
 
-const idParam = HttpApiSchema.param("id", Schema.String.pipe(Schema.brand("ProjectId")))
+export const idParam = HttpApiSchema.param("id", Schema.String.pipe(Schema.brand("ProjectId")))
 
-const projectsApi = HttpApiGroup.make("projects")
+export const projectsApi = HttpApiGroup.make("projects")
     .add(HttpApiEndpoint.post("create")`/projects`.setPayload(ProjectRequest).addSuccess(Schema.String))
-    .add(HttpApiEndpoint.get("findById")`/projects/${idParam}/edit`
+    .add(HttpApiEndpoint.get("findById")`/projects/${idParam}`
         .addSuccess(ProjectResponse)
         .addError(HttpApiError.NotFound, { status: 404 })
         .addError(NotAvailable, { status: 503 }))
@@ -28,8 +28,8 @@ const projectsApi = HttpApiGroup.make("projects")
         .addError(NotAvailable, { status: 503 }))
     .add(HttpApiEndpoint.get("list")`/projects`.addSuccess(ProjectsResponse))
 
-const api = HttpApi.make("MainApi").add(projectsApi).add(monitoringApi).prefix("/api")
-type api = typeof api;
+export const api = HttpApi.make("MainApi").add(projectsApi).add(monitoringApi).prefix("/api")
+export type api = typeof api;
 
 export const projectsList = Effect.gen(function* () {
     const client = yield* HttpApiClient.make(api, {
