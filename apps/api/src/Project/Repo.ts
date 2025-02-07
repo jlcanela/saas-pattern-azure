@@ -6,12 +6,12 @@ import { ProjectResponse } from "common"
 import { Arbitrary, Context, Data, Effect, Equal, FastCheck, Layer, Option } from "effect"
 import type { ParseError } from "effect/ParseResult"
 import { BaseRepo } from "../lib/BaseRepo.js"
-import { HistoryRepo } from "./HistoryRepo.js"
+import { HistoryRepo } from "../History/Repo.js" // TODO: use an history service instead of a repo
 
 type Project = typeof ProjectResponse.Type
 
-export class ProjectsRepo extends Context.Tag("ProjectsRepo")<
-  ProjectsRepo,
+export class ProjectRepo extends Context.Tag("ProjectRepo")<
+  ProjectRepo,
   {
     create: (project: Omit<Project, "id">) => Effect.Effect<Project, PlatformError | ParseError>
     findById: (id: string) => Effect.Effect<Option.Option<Project>, PlatformError | ParseError>
@@ -22,13 +22,13 @@ export class ProjectsRepo extends Context.Tag("ProjectsRepo")<
   }
 >() {
   static live = Layer.effect(
-    ProjectsRepo,
+    ProjectRepo,
     Effect.gen(function*(_) {
       const store = yield* KeyValueStore.KeyValueStore
       const baseRepo = new BaseRepo("project", store, ProjectResponse)
       const historyRepo = yield* HistoryRepo
 
-      const repo = ProjectsRepo.of({
+      const repo = ProjectRepo.of({
         create: baseRepo.create,
         findById: baseRepo.findById,
         list: baseRepo.list,

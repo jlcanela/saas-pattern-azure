@@ -3,18 +3,18 @@ import { Arbitrary, Effect, FastCheck, Layer, Option, pipe } from "effect"
 import { KeyValueStore } from "@effect/platform"
 import { it } from "@effect/vitest"
 
-import { ProjectsRepo } from "./ProjectsRepo.js"
+import { ProjectRepo } from "./Repo.js"
 
 import type { ProjectResponse } from "common"
 import { ProjectRequest } from "common"
-import { HistoryRepo } from "./HistoryRepo.js"
+import { HistoryRepo } from "../History/Repo.js"
 
-const TestLayer = ProjectsRepo.live
+const TestLayer = ProjectRepo.live
   .pipe(Layer.provide(HistoryRepo.live))
   .pipe(Layer.provide(Layer.fresh(KeyValueStore.layerMemory)))
 
 const createProject = Effect.gen(function*(_) {
-  const _repo = yield* ProjectsRepo
+  const _repo = yield* ProjectRepo
   const arb = Arbitrary.make(ProjectRequest)
   const project = FastCheck.sample(arb, 1)[0]
   return { _1: project, _2: yield* _repo.create(project) }
@@ -35,7 +35,7 @@ it.effect("should create a project", () =>
 it.effect("should find a project by id", () =>
   Effect.gen(function*(_) {
     const { _2: created } = yield* createProject
-    const repo = yield* ProjectsRepo
+    const repo = yield* ProjectRepo
     const found = yield* repo.findById(created.id)
     return expect(found).toEqual(Option.some(created))
   }).pipe(Effect.provide(TestLayer)))
@@ -44,7 +44,7 @@ it.effect("update without change should not create an history", () =>
   Effect.gen(function*(_) {
     const history = yield* Effect.gen(function*(_) {
       const { _2: created } = yield* createProject
-      const repo = yield* ProjectsRepo
+      const repo = yield* ProjectRepo
       yield* repo.update(created)
       return yield* repo.findHistoryById(created.id)
     })
@@ -53,7 +53,7 @@ it.effect("update without change should not create an history", () =>
 
 it.effect("update with change should create an history", () =>
   Effect.gen(function*(_) {
-    const repo = yield* ProjectsRepo
+    const repo = yield* ProjectRepo
     const updated = yield* Effect.gen(function*(_) {
       const { _2: created } = yield* createProject
       const updated = { ...created, project_name: "Updated Name" }
@@ -66,7 +66,7 @@ it.effect("update with change should create an history", () =>
 // Test listing projects
 it.live("should list all projects", () =>
     Effect.gen(function* (_) {
-        const repo = yield* ProjectsRepo
+        const repo = yield* ProjectRepo
         const arb = Arbitrary.make(ProjectRequest)
         const projects = FastCheck.sample(arb, 2)
 

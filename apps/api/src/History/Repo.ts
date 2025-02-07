@@ -9,7 +9,7 @@ import type { ParseError } from "effect/ParseResult"
 import { diff } from "json-diff-ts"
 import { BaseRepo } from "../lib/BaseRepo.js"
 
-export class HistoryRepo extends Context.Tag("HistorysRepo")<
+export class HistoryRepo extends Context.Tag("HistoryRepo")<
   HistoryRepo,
   {
     create: (
