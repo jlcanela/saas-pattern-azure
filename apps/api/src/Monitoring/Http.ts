@@ -3,11 +3,12 @@ import { Effect, Layer } from "effect";
 import type { AuthRequest } from "../lib/Permission/index.js";
 import { Permission } from "../lib/Permission/index.js";
 import { Api } from "../Api.js";
-import {  AuthorizationLive, CurrentUser } from "../Api/Authorization.js";
+import { AuthorizationLive, CurrentSecurityContext } from "../Middleware/Authorization.js";
+//import {  AuthorizationLive, CurrentSecurityContext } from "../Middleware/Authorization";
 
 const pong = Effect.gen(function*(_) { 
-  const user = yield* CurrentUser
-  yield* Effect.log(`User: ${user.id}`)
+  const ctx = yield* CurrentSecurityContext
+  yield* Effect.log(`SecurityContext: ${ctx}`)
   return yield* Effect.succeed("pong")
 })
 
@@ -25,4 +26,4 @@ export const HttpMonitoringLive = HttpApiBuilder.group(Api, "monitoring", (handl
   handlers
     .handle("ping", (_req) => pong)
     .handle("config", config)
-    .handle("auth", (req) => auth(req.payload))).pipe(Layer.provide(AuthorizationLive))
+    .handle("auth", (req) => auth(req.payload))).pipe(Layer.provide(AuthorizationLive), Layer.provide(Permission.live))

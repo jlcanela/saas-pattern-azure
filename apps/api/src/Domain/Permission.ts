@@ -1,8 +1,16 @@
 import { Schema } from "effect"
-import type { ActionType, NamespaceType, SchemaType } from "./Cedar.js"
+import type { ActionType, NamespaceType, SchemaType } from "../lib/Permission/Cedar.js"
+
 
 // Entities
-export const User = Schema.Struct({}).annotations({ identifier: "User" })
+export const User = Schema.Struct({
+       id: Schema.String,
+    }).annotations({ identifier: "User" })
+    
+export class SecurityContext extends Schema.Class<SecurityContext>("SecurityContext")({
+    principalId: Schema.String,
+    action: Schema.String,
+}) {}
 
 export const Project = Schema.Struct({
   owner: Schema.String

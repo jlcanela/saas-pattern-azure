@@ -37,7 +37,6 @@ export const findCedarType = (p: any) => {
     return result
 }
 
-
 it("Int type should be 'Long'", () => {
     const int = Schema.Int
     expect(findCedarType( int)).toEqual("Long")

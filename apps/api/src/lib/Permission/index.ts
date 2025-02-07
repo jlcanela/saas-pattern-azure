@@ -1,6 +1,7 @@
 import { Context, Effect, Layer, Schema } from "effect"
 import { generateSchema } from "./Cedar.js"
-import { ActionContext, CedarSchema  } from "./Config.js"
+import { ActionContext, CedarSchema  } from "../../Domain/Permission.js"
+import type { AuthorizationCall } from "@cedar-policy/cedar-wasm"
 
 export const AuthorizationResult = Schema.Union(Schema.Literal("allow"), Schema.Literal("deny"), Schema.Literal("failure"))
 export type AuthorizationResult = typeof AuthorizationResult.Type
@@ -29,6 +30,14 @@ export const AuthRequest = Schema.Struct({
 })
 export type AuthRequest = typeof AuthRequest.Type
 
+const staticPolicies = `
+permit(principal, action, resource);
+forbid (principal, action, resource)
+when {
+    principal.id == "deny-user"
+};
+`
+
 export class Permission extends Context.Tag("Permission")<
   Permission,
   {
@@ -39,7 +48,6 @@ export class Permission extends Context.Tag("Permission")<
   static live = Layer.effect(
     Permission,
     Effect.gen(function* (_) {
-      yield* Effect.log("Permission.live")
 
       const cedar = yield* Effect.promise(() =>
         import('@cedar-policy/cedar-wasm')
@@ -48,7 +56,7 @@ export class Permission extends Context.Tag("Permission")<
       const schema = generateSchema(CedarSchema)
 
       const policies = {
-        staticPolicies: 'permit(principal, action, resource);',
+        staticPolicies,
         templates: {},
         templateLinks: [],
       }
@@ -56,14 +64,27 @@ export class Permission extends Context.Tag("Permission")<
       const perm = Permission.of({
         version: () => Effect.succeed(cedar.getCedarVersion()), // TODO : get version from cedar
         auth: (authRequest: AuthRequest) => Effect.gen(function* (_) {
-          const call = {
+          const call: AuthorizationCall = {
             principal: authRequest.principal,
             action: authRequest.action,
             resource: authRequest.resource,
             context: authRequest.context,
             schema,
             policies,
-            entities: []
+            entities: [  {
+              uid: { type: authRequest.principal.type, id: authRequest.principal.id},
+              attrs: {
+                "id": authRequest.principal.id
+              },
+              parents: []
+            },
+            {
+              uid: { type: authRequest.resource.type, id: authRequest.resource.id},
+              attrs: {
+                "owner": "JohnDoe"
+              },
+              parents: []
+            } ]
           }
 
           const result = cedar.isAuthorized(call)
