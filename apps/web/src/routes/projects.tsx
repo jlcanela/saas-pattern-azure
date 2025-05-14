@@ -27,7 +27,7 @@ import { DataViewTable } from "@patternfly/react-data-view/dist/dynamic/DataView
 import { ActionsColumn } from "@patternfly/react-table";
 import { Fragment } from "react/jsx-runtime";
 import { useState } from "react";
-import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
+// import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import PlusCircleIcon from "@patternfly/react-icons/dist/esm/icons/plus-circle-icon";
 // import pfIcon from './assets/pf-logo-small.svg';
 // import activeMQIcon from './assets/activemq-core_200x150.png';
@@ -40,8 +40,6 @@ import PlusCircleIcon from "@patternfly/react-icons/dist/esm/icons/plus-circle-i
 // import azureIcon from './assets/FuseConnector_Icons_AzureServices.png';
 // import restIcon from './assets/FuseConnector_Icons_REST.png';
 import EllipsisVIcon from "@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon";
-import { DashboardWrapper } from "@patternfly/react-core/dist/js/demos/DashboardWrapper";
-import { CreateProjectForm } from "@/components/CreateProjectForm";
 import { ModalWithWizard } from "@/components/WizardModal";
 // import { data } from '@patternfly/react-core/src/demos/CardView/examples/CardViewData.jsx';
 
@@ -56,7 +54,7 @@ interface Project {
 const rowActions = [
   {
     title: "View Details",
-    onClick: (event, rowData, extraData) => {
+    onClick: (event: React.MouseEvent, rowData: any, extraData: any) => {
       // Replace with your navigation or modal logic
       console.log(
         `Viewing details for project: ${rowData[0].cell.props.children}`
@@ -65,7 +63,7 @@ const rowActions = [
   },
   {
     title: "Edit Project",
-    onClick: (event, rowData, extraData) => {
+    onClick: (event: React.MouseEvent, rowData: any, extraData: any) => {
       // Replace with your edit logic
       console.log(`Editing project: ${rowData[0].cell.props.children}`);
     },
@@ -75,7 +73,7 @@ const rowActions = [
   },
   {
     title: "Delete Project",
-    onClick: (event, rowData, extraData) => {
+    onClick: (event: React.MouseEvent, rowData: any, extraData: any) => {
       // Replace with your delete logic (e.g., show confirmation dialog)
       console.log(`Deleting project: ${rowData[0].cell.props.children}`);
     },
