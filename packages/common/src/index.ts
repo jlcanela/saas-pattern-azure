@@ -1,3 +1,3 @@
-export * from "./Domain/Project.js";
-export * from "./Domain/History.js";
+export * from "./Domain/Project";
+export * from "./Domain/History";
 export * from "./api.js";

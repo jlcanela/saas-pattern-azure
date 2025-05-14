@@ -1,8 +1,9 @@
-import { HttpApiMiddleware, HttpApiSchema, HttpApiSecurity, OpenApi } from "@effect/platform";
+import { HttpApiMiddleware, HttpApiSchema, HttpApiSecurity, HttpServerRequest, OpenApi } from "@effect/platform";
 import { Context, Effect, Layer, Redacted, Schema } from "effect";
 import { SecurityContext } from "../Domain/Permission.js";
 import type { AuthRequest } from "../lib/Permission/index.js";
 import { Permission } from "../lib/Permission/index.js";
+import { ApiMetadata } from "../lib/ApiMetadata.js";
 
 // Define a schema for the "User"
 //class User extends Schema.Class<User>("User")({ id: Schema.Number }) {}
@@ -70,7 +71,8 @@ export class Authorization extends HttpApiMiddleware.Tag<Authorization>()(
       // ▼
       oauth2: HttpApiSecurity.bearer.pipe(
         // Add a description to the security definition
-        HttpApiSecurity.annotate(OpenApi.Description, "OAuth2 Bearer Token"))
+        HttpApiSecurity.annotate(OpenApi.Summary, "OAuth2 Bearer Token"),
+        HttpApiSecurity.annotate(OpenApi.Description, "The existing scopes are 'read', 'write'")),
       // Additional security definitions can be added here.
       // They will attempt to be resolved in the order they are defined.
     }
@@ -82,6 +84,8 @@ export const AuthorizationLive = Layer.effect(
     Effect.gen(function* () {
 
       const perm = yield* Permission
+      const am = yield* ApiMetadata
+
       return {
         oauth2: (bearerToken) =>
           Effect.gen(function* () {
@@ -90,30 +94,30 @@ export const AuthorizationLive = Layer.effect(
               return yield* Effect.fail(new AuthorizationFailed({ reason: AuthorizationFailedReason.NoBearerToken }))
             }
 
+            const req = yield* HttpServerRequest.HttpServerRequest  
+            yield* Effect.log(req)         
             const principalId = Redacted.value(bearerToken)
-            const action = "read"
+            const action = yield* am.currentAction(req.method, req.url)
 
             const request: AuthRequest = {  
               principal: {
-                type: "App::User",
+                type: "User",
                 id: principalId
               },
               action: {
-                 type: "App::Action",
-                 id: "read"
+                 type: "Action",
+                 id: action
               },
-              resource: {
-                type: "App::Project",
-                id: "1234",
-                
-              },
+              // resource: {
+              //   type: "Project",
+              //   id: "1234",
+              // },
               context: {
-                pwnLevel: 0,
-                anotherField: "string",
-                bool: true,
-                boolField: false
+                // pwnLevel: 0,
+                // anotherField: "string",
+                // bool: true,
+                // boolField: false
               }
-              
             }
 
             const result = yield* perm.auth(request)

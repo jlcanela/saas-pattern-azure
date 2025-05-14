@@ -29,3 +29,6 @@ _vrac
 .turbo
 .env
 /test
+
+old
+storybook-static

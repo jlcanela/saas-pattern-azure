@@ -2,20 +2,27 @@
   "name": "common",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
   },
+  "main": "dist/index.cjs",
+  "types": "dist/index.d.ts",
   "scripts": {
     "clean": "rm -rf node_modules dist",
+    "build": "tsup --dts",
     "lint": "eslint . -c eslint.config.mjs"
   },
   "dependencies": {
     "@effect/platform": "^0.75.0",
     "@faker-js/faker": "^9.4.0",
-    "effect": "^3.12.6"
+    "effect": "^3.14.22"
   },
   "devDependencies": {
     "@tsconfig/node21": "^21.0.3",
     "eslint-config-custom": "workspace:*",
+    "tsup": "^8.4.0",
     "typescript": "^5.5.4"
   }
 }

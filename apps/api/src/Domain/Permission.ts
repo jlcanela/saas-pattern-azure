@@ -18,10 +18,10 @@ export const Project = Schema.Struct({
 
 // Context
 export const ActionContext = Schema.Struct({
-  pwnLevel: Schema.Int,
-  anotherField: Schema.String.pipe(Schema.optional),
-  bool: Schema.Boolean,
-  boolField: Schema.Boolean.pipe(Schema.optional),
+  // pwnLevel: Schema.Int,
+  // anotherField: Schema.String.pipe(Schema.optional),
+  // bool: Schema.Boolean,
+  // boolField: Schema.Boolean.pipe(Schema.optional),
 }).annotations({ identifier: "ActionContext" })
 
 // Actions
@@ -40,7 +40,7 @@ const actions = Schema.Struct({
 })
 
 // Schema
-const App: NamespaceType = Schema.Struct({
+export const App: NamespaceType = Schema.Struct({
   commonTypes: Schema.Union(ActionContext),
   entityTypes: Schema.Union(User, Project),
   actions

@@ -1,0 +1,967 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Groups API",
+    "version": "0.0.1"
+  },
+  "paths": {
+    "/api/ping": {
+      "get": {
+        "tags": [
+          "monitoring"
+        ],
+        "operationId": "monitoring.ping",
+        "parameters": [],
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "a string",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request did not match the expected schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpApiDecodeError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/Unauthorized"
+                    },
+                    {
+                      "$ref": "#/components/schemas/AuthorizationFailed"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "description": "Requires **read** permission"
+      }
+    },
+    "/api/config": {
+      "get": {
+        "tags": [
+          "monitoring"
+        ],
+        "operationId": "monitoring.config",
+        "parameters": [],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "a string",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request did not match the expected schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpApiDecodeError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Requires **read** permission"
+      }
+    },
+    "/api/auth": {
+      "post": {
+        "tags": [
+          "monitoring"
+        ],
+        "operationId": "monitoring.auth",
+        "parameters": [],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "allow",
+                    "deny",
+                    "failure"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request did not match the expected schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpApiDecodeError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Requires **auth** permission",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "principal",
+                  "action",
+                  "context"
+                ],
+                "properties": {
+                  "principal": {
+                    "type": "object",
+                    "required": [
+                      "type",
+                      "id"
+                    ],
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "action": {
+                    "type": "object",
+                    "required": [
+                      "type",
+                      "id"
+                    ],
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "resource": {
+                    "type": "object",
+                    "required": [
+                      "type",
+                      "id"
+                    ],
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "context": {
+                    "$ref": "#/components/schemas/ActionContext"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/projects": {
+      "post": {
+        "tags": [
+          "projects"
+        ],
+        "operationId": "projects.create",
+        "parameters": [],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "a string",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request did not match the expected schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/HttpApiDecodeError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/BadRequest"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "InternalServerError"
+          },
+          "503": {
+            "description": "InternalServerError"
+          }
+        },
+        "description": "Requires **create** permission",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "project_name",
+                  "project_description",
+                  "project_objective",
+                  "project_stakeholders"
+                ],
+                "properties": {
+                  "project_name": {
+                    "type": "string",
+                    "title": "Project Name"
+                  },
+                  "project_description": {
+                    "type": "string",
+                    "title": "Project Description"
+                  },
+                  "project_objective": {
+                    "type": "string",
+                    "title": "Project Objective"
+                  },
+                  "project_stakeholders": {
+                    "type": "string",
+                    "title": "Project Stakeholders"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "operationId": "projects.list",
+        "parameters": [],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "projects"
+                  ],
+                  "properties": {
+                    "projects": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "project_name",
+                          "project_description",
+                          "project_objective",
+                          "project_stakeholders"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "title": "Project Id"
+                          },
+                          "project_name": {
+                            "type": "string",
+                            "title": "Project Name"
+                          },
+                          "project_description": {
+                            "type": "string",
+                            "title": "Project Description"
+                          },
+                          "project_objective": {
+                            "type": "string",
+                            "title": "Project Objective"
+                          },
+                          "project_stakeholders": {
+                            "type": "string",
+                            "title": "Project Stakeholders"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request did not match the expected schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/HttpApiDecodeError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/BadRequest"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "InternalServerError"
+          },
+          "503": {
+            "description": "InternalServerError"
+          }
+        },
+        "description": "Requires **read** permission"
+      }
+    },
+    "/api/projects/{id}": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "operationId": "projects.findById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "project_name",
+                    "project_description",
+                    "project_objective",
+                    "project_stakeholders"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "title": "Project Id"
+                    },
+                    "project_name": {
+                      "type": "string",
+                      "title": "Project Name"
+                    },
+                    "project_description": {
+                      "type": "string",
+                      "title": "Project Description"
+                    },
+                    "project_objective": {
+                      "type": "string",
+                      "title": "Project Objective"
+                    },
+                    "project_stakeholders": {
+                      "type": "string",
+                      "title": "Project Stakeholders"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request did not match the expected schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/HttpApiDecodeError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/BadRequest"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NotFound"
+          },
+          "500": {
+            "description": "InternalServerError"
+          },
+          "503": {
+            "description": "InternalServerError"
+          }
+        },
+        "description": "Requires **read** permission"
+      },
+      "post": {
+        "tags": [
+          "projects"
+        ],
+        "operationId": "projects.update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "project_name",
+                    "project_description",
+                    "project_objective",
+                    "project_stakeholders"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "title": "Project Id"
+                    },
+                    "project_name": {
+                      "type": "string",
+                      "title": "Project Name"
+                    },
+                    "project_description": {
+                      "type": "string",
+                      "title": "Project Description"
+                    },
+                    "project_objective": {
+                      "type": "string",
+                      "title": "Project Objective"
+                    },
+                    "project_stakeholders": {
+                      "type": "string",
+                      "title": "Project Stakeholders"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request did not match the expected schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/HttpApiDecodeError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/BadRequest"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "InternalServerError"
+          },
+          "503": {
+            "description": "InternalServerError"
+          }
+        },
+        "description": "Requires **update** permission",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "project_name",
+                  "project_description",
+                  "project_objective",
+                  "project_stakeholders"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "title": "Project Id"
+                  },
+                  "project_name": {
+                    "type": "string",
+                    "title": "Project Name"
+                  },
+                  "project_description": {
+                    "type": "string",
+                    "title": "Project Description"
+                  },
+                  "project_objective": {
+                    "type": "string",
+                    "title": "Project Objective"
+                  },
+                  "project_stakeholders": {
+                    "type": "string",
+                    "title": "Project Stakeholders"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/projects/{id}/history": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "operationId": "projects.findProjectHistoryById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "changes"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "changes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "timestamp",
+                          "userId",
+                          "reason",
+                          "content"
+                        ],
+                        "properties": {
+                          "timestamp": {
+                            "$ref": "#/components/schemas/Date"
+                          },
+                          "userId": {
+                            "type": "string"
+                          },
+                          "reason": {
+                            "type": "string"
+                          },
+                          "content": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request did not match the expected schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/HttpApiDecodeError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/BadRequest"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NotFound"
+          },
+          "500": {
+            "description": "InternalServerError"
+          },
+          "503": {
+            "description": "InternalServerError"
+          }
+        },
+        "description": "Requires **read** permission"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HttpApiDecodeError": {
+        "type": "object",
+        "required": [
+          "issues",
+          "message",
+          "_tag"
+        ],
+        "properties": {
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Issue"
+            }
+          },
+          "message": {
+            "type": "string"
+          },
+          "_tag": {
+            "type": "string",
+            "enum": [
+              "HttpApiDecodeError"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "description": "The request did not match the expected schema"
+      },
+      "Issue": {
+        "type": "object",
+        "required": [
+          "_tag",
+          "path",
+          "message"
+        ],
+        "properties": {
+          "_tag": {
+            "type": "string",
+            "enum": [
+              "Pointer",
+              "Unexpected",
+              "Missing",
+              "Composite",
+              "Refinement",
+              "Transformation",
+              "Type",
+              "Forbidden"
+            ],
+            "description": "The tag identifying the type of parse issue"
+          },
+          "path": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PropertyKey"
+            },
+            "description": "The path to the property where the issue occurred"
+          },
+          "message": {
+            "type": "string",
+            "description": "A descriptive message explaining the issue"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents an error encountered while parsing a value to match the schema"
+      },
+      "PropertyKey": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "object",
+            "required": [
+              "_tag",
+              "key"
+            ],
+            "properties": {
+              "_tag": {
+                "type": "string",
+                "enum": [
+                  "symbol"
+                ]
+              },
+              "key": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "description": "an object to be decoded into a globally shared symbol"
+          }
+        ]
+      },
+      "Unauthorized": {
+        "$id": "/schemas/void",
+        "title": "Unauthorized"
+      },
+      "AuthorizationFailed": {
+        "type": "object",
+        "required": [
+          "reason",
+          "_tag"
+        ],
+        "properties": {
+          "reason": {
+            "$comment": "/schemas/enums",
+            "anyOf": [
+              {
+                "type": "string",
+                "title": "NoBearerToken",
+                "enum": [
+                  "No authentication token provided"
+                ]
+              },
+              {
+                "type": "string",
+                "title": "ExpiredToken",
+                "enum": [
+                  "Authentication token has expired"
+                ]
+              },
+              {
+                "type": "string",
+                "title": "MalformedToken",
+                "enum": [
+                  "Token format is invalid"
+                ]
+              },
+              {
+                "type": "string",
+                "title": "InvalidTokenSignature",
+                "enum": [
+                  "Token signature verification failed"
+                ]
+              },
+              {
+                "type": "string",
+                "title": "NoValidationCertificate",
+                "enum": [
+                  "Certificate for token validation not found"
+                ]
+              },
+              {
+                "type": "string",
+                "title": "ExpiredCertificate",
+                "enum": [
+                  "Certificate has expired"
+                ]
+              },
+              {
+                "type": "string",
+                "title": "InvalidCertificate",
+                "enum": [
+                  "Certificate is invalid or corrupted"
+                ]
+              },
+              {
+                "type": "string",
+                "title": "CertificateRevoked",
+                "enum": [
+                  "Certificate has been revoked"
+                ]
+              },
+              {
+                "type": "string",
+                "title": "InsufficientPermissions",
+                "enum": [
+                  "User lacks required permissions"
+                ]
+              },
+              {
+                "type": "string",
+                "title": "ResourceNotFound",
+                "enum": [
+                  "Requested resource does not exist"
+                ]
+              },
+              {
+                "type": "string",
+                "title": "AccountDisabled",
+                "enum": [
+                  "User account is disabled"
+                ]
+              },
+              {
+                "type": "string",
+                "title": "AccountLocked",
+                "enum": [
+                  "User account is locked"
+                ]
+              },
+              {
+                "type": "string",
+                "title": "SessionExpired",
+                "enum": [
+                  "User session has expired"
+                ]
+              },
+              {
+                "type": "string",
+                "title": "SessionRevoked",
+                "enum": [
+                  "Session has been revoked"
+                ]
+              },
+              {
+                "type": "string",
+                "title": "ConcurrentSessionLimit",
+                "enum": [
+                  "Maximum concurrent sessions reached"
+                ]
+              },
+              {
+                "type": "string",
+                "title": "IPBlocked",
+                "enum": [
+                  "Access denied from current IP address"
+                ]
+              },
+              {
+                "type": "string",
+                "title": "GeographicRestriction",
+                "enum": [
+                  "Access denied from current location"
+                ]
+              },
+              {
+                "type": "string",
+                "title": "RateLimitExceeded",
+                "enum": [
+                  "Too many requests"
+                ]
+              },
+              {
+                "type": "string",
+                "title": "QuotaExceeded",
+                "enum": [
+                  "API quota exceeded"
+                ]
+              }
+            ]
+          },
+          "_tag": {
+            "type": "string",
+            "enum": [
+              "AuthorizationFailed"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "ActionContext": {
+        "$id": "/schemas/{}",
+        "anyOf": [
+          {
+            "type": "object"
+          },
+          {
+            "type": "array"
+          }
+        ]
+      },
+      "BadRequest": {
+        "$id": "/schemas/void",
+        "title": "BadRequest"
+      },
+      "Date": {
+        "type": "string",
+        "description": "a string to be decoded into a Date"
+      }
+    },
+    "securitySchemes": {
+      "oauth2": {
+        "description": "The existing scopes are 'read', 'write'",
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "security": [],
+  "tags": [
+    {
+      "name": "monitoring"
+    },
+    {
+      "name": "projects"
+    }
+  ]
+}

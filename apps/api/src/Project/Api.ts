@@ -1,4 +1,4 @@
-import { HttpApiEndpoint, HttpApiError, HttpApiGroup, HttpApiSchema } from "@effect/platform";
+import { HttpApiEndpoint, HttpApiError, HttpApiGroup, HttpApiSchema, OpenApi } from "@effect/platform";
 import { History, Project, ProjectRequest, ProjectResponse, ProjectsResponse } from "common";
 import { Schema } from "effect";
 
@@ -13,6 +13,7 @@ export const ProjectApi = HttpApiGroup.make("projects")
       .addError(HttpApiError.HttpApiDecodeError)
       .addError(HttpApiError.BadRequest)
       .addError(HttpApiError.InternalServerError)
+      .annotate(OpenApi.Description, `Requires **create** permission`)
   )
   .add(
     HttpApiEndpoint.get("findById")`/projects/${idParam}`
@@ -21,6 +22,7 @@ export const ProjectApi = HttpApiGroup.make("projects")
       .addError(HttpApiError.HttpApiDecodeError)
       .addError(HttpApiError.BadRequest)
       .addError(HttpApiError.InternalServerError)
+      .annotate(OpenApi.Description, `Requires **read** permission`)
   )
   .add(
     HttpApiEndpoint.post("update")`/projects/${idParam}`
@@ -29,6 +31,7 @@ export const ProjectApi = HttpApiGroup.make("projects")
       .addError(HttpApiError.HttpApiDecodeError)
       .addError(HttpApiError.BadRequest)
       .addError(HttpApiError.InternalServerError)
+      .annotate(OpenApi.Description, `Requires **update** permission`)
   )
   .add(
     HttpApiEndpoint.get("findProjectHistoryById")`/projects/${idParam}/history`
@@ -37,6 +40,7 @@ export const ProjectApi = HttpApiGroup.make("projects")
       .addError(HttpApiError.BadRequest)
       .addError(HttpApiError.InternalServerError)
       .addError(HttpApiError.NotFound)
+      .annotate(OpenApi.Description, `Requires **read** permission`)
   )
   .add(
     HttpApiEndpoint.get("list")`/projects`
@@ -44,6 +48,7 @@ export const ProjectApi = HttpApiGroup.make("projects")
       .addError(HttpApiError.HttpApiDecodeError)
       .addError(HttpApiError.BadRequest)
       .addError(HttpApiError.InternalServerError)
+      .annotate(OpenApi.Description, `Requires **read** permission`)
   )
 
   

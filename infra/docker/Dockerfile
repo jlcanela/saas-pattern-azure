@@ -25,4 +25,4 @@ ENV PORT=8000
 EXPOSE ${PORT}
 
 # Use node directly to run the compiled JavaScript
-CMD ["node", "apps/api/dist/index.js", "dist"]
+CMD ["node", "--experimental-wasm-modules", "apps/api/dist/index.js", "dist"]

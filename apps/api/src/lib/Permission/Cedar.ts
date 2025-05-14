@@ -156,7 +156,7 @@ const generateActions = (actions: Schema.Struct<any>) => {
   );
 }
 
-const generateUnitarySchema = (ns: NamespaceType) => {
+export const generateUnitarySchema = (ns: NamespaceType) => {
 
   const {
     actions,

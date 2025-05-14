@@ -14,7 +14,7 @@ Run locally [frontend](http://localhost:5173/) with vite and
 [api](http://localhost:8000/) with deno:
 
 ```
-pnpm turbo run dev
+pnpm run dev
 ```
 
 ## Docker run
@@ -27,6 +27,7 @@ docker run -p 8000:8000 saas-pattern-azure
 
 ```
 buildah bud -f infra/docker/Dockerfile -t saas-pattern-azure .
+podman run -p 8000:8000 localhost/saas-pattern-azure
 ```
 
 ## Perf test
@@ -104,3 +105,35 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+# Cosmosdb emulation
+
+```
+docker pull mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview
+docker run --detach --publish 8081:8081 --publish 1234:1234 mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview
+```
+
+```
+podman pull mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview
+podman run --detach --publish 8081:8081 --publish 1234:1234 \
+mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview
+```
+
+http://localhost:1234/
+
+
+pnpm exec ts-node cosmos.ts
+
+
+# Trace
+
+Use of zipkin2 
+
+```
+podman pull openzipkin/zipkin
+
+podman run -d -p 9411:9411 \
+ -e JAVA_OPTS="-Dlogging.level.zipkin2=DEBUG" \
+ openzipkin/zipkin 
+```

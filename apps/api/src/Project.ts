@@ -4,13 +4,18 @@ import { ProjectsResponse } from "common"
 import { ProjectRepo } from "./Project/Repo.js"
 import { HttpApiError, KeyValueStore } from "@effect/platform"
 import { HistoryRepo } from "./History/Repo.js"
+import { Cosmos } from "./lib/CosmosDb.js"
+import { v4 as uuidv4 } from 'uuid';
 
 export class Project extends Effect.Service<Project>()("Project", {
   effect: Effect.gen(function*() {
+    const cosmos = yield* Cosmos
     const projectRepo = yield* ProjectRepo
     const historyRepo = yield* HistoryRepo
     
     const createProject = (payload: ProjectRequest) => Effect.gen(function*(_) {
+      const id = uuidv4()
+      const p = yield* cosmos.writeDocument({id, project_id: id, ...payload})
       return yield* projectRepo.create(payload).pipe(
         Effect.map(() => `Project '${payload.project_name}' created`))
     }).pipe(
@@ -50,8 +55,13 @@ export class Project extends Effect.Service<Project>()("Project", {
     })
 
     const listProject = () => Effect.gen(function*(_) {
-      const projects = yield* projectRepo.list()
-      return ProjectsResponse.make({ projects })
+      const projects = yield* cosmos.query()
+      //yield* Effect.log("list-projects", p)
+
+      //yield* Effect.log("readAll ****", yield* cosmos.readAllDatabases)
+
+      //const projects = yield* projectRepo.list()
+      return ProjectsResponse.make({projects})
     }).pipe(
       Effect.catchTag("ParseError", (error) => Effect.flip(HttpApiError.HttpApiDecodeError.fromParseError(error))),
       Effect.catchTag("BadArgument", () => Effect.fail(new HttpApiError.BadRequest())),

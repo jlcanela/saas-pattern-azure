@@ -1,9 +1,9 @@
 import { Effect, Schema } from "effect"
 import { FetchHttpClient, HttpApi, HttpApiClient, HttpApiEndpoint, HttpApiError, HttpApiGroup, HttpApiSchema } from "@effect/platform";
-import type { ProjectId } from "./Domain/Project.js";
-import { NotAvailable, ProjectRequest, Project, ProjectResponse, ProjectsResponse } from "./Domain/Project.js";
-import { PingResponse } from "./Domain/Health.js";
-import { History } from "./Domain/History.js";
+import type { ProjectId } from "./Domain/Project";
+import { NotAvailable, ProjectRequest, Project, ProjectResponse, ProjectsResponse } from "./Domain/Project";
+import { PingResponse } from "./Domain/Health";
+import { History } from "./Domain/History";
 
 export const monitoringApi = HttpApiGroup.make("monitoring")
     .add(HttpApiEndpoint.get("ping")`/ping`.addSuccess(PingResponse))

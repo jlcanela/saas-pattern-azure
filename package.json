@@ -14,6 +14,6 @@
     "prettier": "^3.2.5",
     "turbo": "latest"
   },
-  "packageManager": "pnpm@8.15.6",
+  "packageManager": "pnpm@2.3.3",
   "name": "with-vite"
 }
