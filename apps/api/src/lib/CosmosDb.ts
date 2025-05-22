@@ -1,5 +1,5 @@
 import "dotenv/config"
-import { CosmosClient, PartitionKeyKind } from "@azure/cosmos"
+import { ConnectionMode, CosmosClient, type ItemDefinition, PartitionKeyKind } from "@azure/cosmos"
 import { Console, Data, Effect, pipe, Schedule } from "effect"
 import { timed } from "./timed.ts"
 
@@ -18,9 +18,13 @@ export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
       const endpoint = process.env.COSMOS_ENDPOINT
       const key = process.env.COSMOS_KEY
 
+      yield* Effect.log("Endpoint:", endpoint)
       const client = new CosmosClient({
         endpoint,
-        key
+        key,
+        connectionPolicy: {
+          connectionMode: ConnectionMode.Gateway
+        }
       })
 
       function readAllDatabases() {
@@ -119,7 +123,7 @@ export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
         )
       }
 
-      function writeDocument<T>(t: T) {
+      function writeDocument<T extends ItemDefinition>(t: T) {
         return Effect.gen(function* () {
           const itemResponse = yield* Effect.tryPromise({
             try: () => projectContainer.items.create(t),

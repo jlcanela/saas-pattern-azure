@@ -2,6 +2,8 @@
     "extends": "@tsconfig/node18/tsconfig.json",
     "compilerOptions": {
       "outDir": "./dist",
-      "types": ["vitest/globals"]
+      "types": ["vitest/globals"],
+      "allowImportingTsExtensions": true,
+      "noEmit": true
     }
   }

@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as ProjectsImport } from './routes/projects'
+import { Route as FormImport } from './routes/form'
 import { Route as AdministrationImport } from './routes/administration'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
@@ -21,6 +22,12 @@ import { Route as IndexImport } from './routes/index'
 const ProjectsRoute = ProjectsImport.update({
   id: '/projects',
   path: '/projects',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const FormRoute = FormImport.update({
+  id: '/form',
+  path: '/form',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -67,6 +74,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdministrationImport
       parentRoute: typeof rootRoute
     }
+    '/form': {
+      id: '/form'
+      path: '/form'
+      fullPath: '/form'
+      preLoaderRoute: typeof FormImport
+      parentRoute: typeof rootRoute
+    }
     '/projects': {
       id: '/projects'
       path: '/projects'
@@ -83,6 +97,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/administration': typeof AdministrationRoute
+  '/form': typeof FormRoute
   '/projects': typeof ProjectsRoute
 }
 
@@ -90,6 +105,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/administration': typeof AdministrationRoute
+  '/form': typeof FormRoute
   '/projects': typeof ProjectsRoute
 }
 
@@ -98,15 +114,16 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/administration': typeof AdministrationRoute
+  '/form': typeof FormRoute
   '/projects': typeof ProjectsRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/administration' | '/projects'
+  fullPaths: '/' | '/about' | '/administration' | '/form' | '/projects'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/administration' | '/projects'
-  id: '__root__' | '/' | '/about' | '/administration' | '/projects'
+  to: '/' | '/about' | '/administration' | '/form' | '/projects'
+  id: '__root__' | '/' | '/about' | '/administration' | '/form' | '/projects'
   fileRoutesById: FileRoutesById
 }
 
@@ -114,6 +131,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AdministrationRoute: typeof AdministrationRoute
+  FormRoute: typeof FormRoute
   ProjectsRoute: typeof ProjectsRoute
 }
 
@@ -121,6 +139,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AdministrationRoute: AdministrationRoute,
+  FormRoute: FormRoute,
   ProjectsRoute: ProjectsRoute,
 }
 
@@ -137,6 +156,7 @@ export const routeTree = rootRoute
         "/",
         "/about",
         "/administration",
+        "/form",
         "/projects"
       ]
     },
@@ -148,6 +168,9 @@ export const routeTree = rootRoute
     },
     "/administration": {
       "filePath": "administration.tsx"
+    },
+    "/form": {
+      "filePath": "form.tsx"
     },
     "/projects": {
       "filePath": "projects.tsx"

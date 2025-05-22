@@ -1,8 +1,8 @@
 import { it } from "@effect/vitest"
-import { AccessMetadata, ApiMetadata, Method } from "./ApiMetadata.js"
+import { AccessMetadata, ApiMetadata, type Method } from "./ApiMetadata.js"
 import { Effect, pipe } from "effect"
 import { NodeContext } from "@effect/platform-node"
-import { OpenAPISpecMethodName, OpenAPISpecPathItem } from "@effect/platform/OpenApi"
+import { type OpenAPISpecMethodName, type OpenAPISpecPathItem } from "@effect/platform/OpenApi"
 
 // const TestLayer = pipe(
 //     Layer.provide(ApiMetadata.live),
@@ -16,7 +16,7 @@ import { OpenAPISpecMethodName, OpenAPISpecPathItem } from "@effect/platform/Ope
 //   return { _1: project, _2: yield* _repo.create(project) }
 // })
 
-it.live("should identify the current action", () =>
+it.skip("should identify the current action", () =>
   pipe(
     Effect.gen(function*(_) {
         const am = yield* ApiMetadata

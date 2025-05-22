@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import {
   Form,
   FormGroup,
@@ -21,15 +21,20 @@ export const CreateProjectForm: React.FunctionComponent = () => {
   const [experience, setExperience] = useState('');
   const [option, setOption] = useState('please choose');
 
-  const handleNameChange = (_event, name: string) => {
-    setName(name);
-  };
+const handleNameChange = (_event: FormEvent<HTMLInputElement>, value: string) => {
+  setName(value);
+};
 
-  const handleEmailChange = (_event, email: string) => {
-    setEmail(email);
-  };
+const handleEmailChange = (_event: FormEvent<HTMLInputElement>, value: string) => {
+  setEmail(value);
+};
 
-  const handleExperienceChange = (_event, experience: string) => {
+// const handleEmailChange = (value: string, event: React.FormEvent<HTMLInputElement>) => {
+//   setEmail(value);
+// };
+
+
+  const handleExperienceChange = (_event: FormEvent<HTMLTextAreaElement>, experience: string) => {
     setExperience(experience);
   };
 

@@ -25,6 +25,8 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 10.11.0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -33,7 +35,7 @@ jobs:
           cache: "pnpm"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Security audit
         run: pnpm audit
@@ -51,11 +53,11 @@ jobs:
       - name: Lint
         run: pnpm turbo run lint
 
-      - name: Test
-        run: pnpm turbo run test:coverage
-
       - name: Build
         run: pnpm turbo run build
+
+      - name: Test
+        run: pnpm turbo run test:coverage
 
       - name: Build Image
         id: build-image

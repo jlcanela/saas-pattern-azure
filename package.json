@@ -10,10 +10,15 @@
     "effect": "3.12.5"
   },
   "devDependencies": {
-    "eslint": "^9.18.0",
-    "prettier": "^3.2.5",
+    "eslint": "^9.27.0",
+    "prettier": "^3.5.3",
     "turbo": "latest"
   },
-  "packageManager": "pnpm@2.3.3",
-  "name": "with-vite"
+  "packageManager": "pnpm@10.11.0",
+  "name": "with-vite",
+  "pnpm": {
+    "overrides": {
+      "vite@>=5.0.0 <=5.4.18": ">=5.4.19"
+    }
+  }
 }

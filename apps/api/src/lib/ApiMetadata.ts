@@ -1,6 +1,6 @@
 import { Context, Effect, Layer, Schema } from "effect"
 import { Api } from "../Api.js"
-import { FileSystem, OpenApi } from "@effect/platform"
+import { OpenApi } from "@effect/platform"
 import type { OpenAPISpecMethodName } from "@effect/platform/OpenApi"
 
 export const Method = Schema.Union(Schema.Literal("GET"), Schema.Literal("POST"), Schema.Literal("PUT"), Schema.Literal("DELETE"),  Schema.Literal("PATCH"), Schema.Literal("HEAD"), Schema.Literal("OPTIONS"))

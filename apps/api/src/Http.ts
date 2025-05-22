@@ -4,7 +4,7 @@ import { Layer } from "effect"
 import { createServer } from "http"
 import { HttpMonitoringLive } from "./Monitoring/Http.js"
 import { HttpProjectLive } from "./Project/Http.js"
-import { WebAppRoutes } from "./lib/WebApp.js"
+// import { WebAppRoutes } from "./lib/WebApp.js"
 import { Api } from "./Api.js"
 import { ProjectRepo } from "./Project/Repo.js"
 import { HistoryRepo } from "./History/Repo.js"
@@ -20,7 +20,6 @@ const ApiLive = Layer.provide(HttpApiBuilder.api(Api), [
   HttpMonitoringLive,
   HttpProjectLive,
 ])
-
 
 //   Layer.provide(InitService.live),
 //   Layer.provide(TracingLive),

@@ -1,5 +1,4 @@
 import Page from "@/components/Page";
-import type { fetchProjects } from "@/utils/fetchProjects";
 import {
   createRootRouteWithContext,
   Outlet,
@@ -7,7 +6,7 @@ import {
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 export const Route = createRootRouteWithContext<{
-  fetchProjects: typeof fetchProjects;
+  queryClient: unknown;
 }>()({
   component: () => (
     <>

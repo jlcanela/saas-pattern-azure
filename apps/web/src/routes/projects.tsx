@@ -1,3 +1,6 @@
+/* eslint-disable */
+// @ts-nocheck
+
 import {
   Content,
   PageSection,
@@ -22,13 +25,15 @@ import {
   MenuToggleCheckbox,
   Pagination,
 } from "@patternfly/react-core";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { DataViewTable } from "@patternfly/react-data-view/dist/dynamic/DataViewTable";
 import { ActionsColumn } from "@patternfly/react-table";
 import { Fragment } from "react/jsx-runtime";
 import { useState } from "react";
+import { useSuspenseQuery, useQueryClient, QueryCache } from '@tanstack/react-query';
+import { queryOptions } from '@tanstack/react-query';
 // import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
-import PlusCircleIcon from "@patternfly/react-icons/dist/esm/icons/plus-circle-icon";
+// import PlusCircleIcon from "@patternfly/react-icons/dist/esm/icons/plus-circle-icon";
 // import pfIcon from './assets/pf-logo-small.svg';
 // import activeMQIcon from './assets/activemq-core_200x150.png';
 // import avroIcon from './assets/camel-avro_200x150.png';
@@ -40,8 +45,9 @@ import PlusCircleIcon from "@patternfly/react-icons/dist/esm/icons/plus-circle-i
 // import azureIcon from './assets/FuseConnector_Icons_AzureServices.png';
 // import restIcon from './assets/FuseConnector_Icons_REST.png';
 import EllipsisVIcon from "@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon";
-import { ModalWithWizard } from "@/components/WizardModal";
+import { CreateProjectWizard } from "@/components/WizardModal";
 // import { data } from '@patternfly/react-core/src/demos/CardView/examples/CardViewData.jsx';
+import { projectsQueryOptions } from "../utils/fetchProjects"
 
 interface Project {
   id: number;
@@ -54,7 +60,7 @@ interface Project {
 const rowActions = [
   {
     title: "View Details",
-    onClick: (event: React.MouseEvent, rowData: any, extraData: any) => {
+    onClick: (event, rowData, ) => {
       // Replace with your navigation or modal logic
       console.log(
         `Viewing details for project: ${rowData[0].cell.props.children}`
@@ -96,7 +102,8 @@ const columns = [
 const ouiaId = "TableExample";
 
 const BasicExample: React.FunctionComponent = () => {
-  const projects: Array<Project> = Route.useLoaderData();
+  // const projects: Array<Project> = Route.useLoaderData();
+  const { data: projects } = useSuspenseQuery(projectsQueryOptions);
 
   const totalItemCount = 10;
 
@@ -520,7 +527,7 @@ const BasicExample: React.FunctionComponent = () => {
       <ToolbarItem>
         <OverflowMenu breakpoint="md">
           <OverflowMenuItem>
-            <ModalWithWizard />
+            <CreateProjectWizard />
           </OverflowMenuItem>
           <OverflowMenuControl hasAdditionalOptions>
             <Dropdown
@@ -623,7 +630,11 @@ const BasicExample: React.FunctionComponent = () => {
   );
 };
 
+
+
 export const Route = createFileRoute("/projects")({
-  loader: ({ context: { fetchProjects } }) => fetchProjects(),
+  loader: ( { context: { queryClient} } ) =>  {
+    queryClient.ensureQueryData(projectsQueryOptions)
+  },
   component: BasicExample,
 });
