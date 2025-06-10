@@ -1,640 +1,196 @@
-/* eslint-disable */
-// @ts-nocheck
+import { useState } from 'react';
+import {
+  Table,
+  Checkbox,
+  Button,
+  Group,
+  Text,
+  MultiSelect,
+  Select,
+  ActionIcon,
+  Menu,
+  Box,
+  Flex,
+  type StyleProp,
+  type DefaultMantineColor
+} from '@mantine/core';
 
 import {
-  Content,
-  PageSection,
-  Button,
-  Toolbar,
-  ToolbarContent,
-  ToolbarItem,
-  OverflowMenu,
-  OverflowMenuItem,
-  OverflowMenuControl,
-  Dropdown,
-  MenuToggle,
-  DropdownList,
-  DropdownItem,
-  SelectList,
-  SelectOption,
-  ToolbarFilter,
-  Select,
-  OverflowMenuDropdownItem,
-  Divider,
-  Badge,
-  MenuToggleCheckbox,
-  Pagination,
-} from "@patternfly/react-core";
-import { createFileRoute } from "@tanstack/react-router";
-import { DataViewTable } from "@patternfly/react-data-view/dist/dynamic/DataViewTable";
-import { ActionsColumn } from "@patternfly/react-table";
-import { Fragment } from "react/jsx-runtime";
-import { useState } from "react";
-import { useSuspenseQuery, useQueryClient, QueryCache } from '@tanstack/react-query';
-import { queryOptions } from '@tanstack/react-query';
-// import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
-// import PlusCircleIcon from "@patternfly/react-icons/dist/esm/icons/plus-circle-icon";
-// import pfIcon from './assets/pf-logo-small.svg';
-// import activeMQIcon from './assets/activemq-core_200x150.png';
-// import avroIcon from './assets/camel-avro_200x150.png';
-// import dropBoxIcon from './assets/camel-dropbox_200x150.png';
-// import infinispanIcon from './assets/camel-infinispan_200x150.png';
-// import saxonIcon from './assets/camel-saxon_200x150.png';
-// import sparkIcon from './assets/camel-spark_200x150.png';
-// import swaggerIcon from './assets/camel-swagger-java_200x150.png';
-// import azureIcon from './assets/FuseConnector_Icons_AzureServices.png';
-// import restIcon from './assets/FuseConnector_Icons_REST.png';
-import EllipsisVIcon from "@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon";
-import { CreateProjectWizard } from "@/components/WizardModal";
-// import { data } from '@patternfly/react-core/src/demos/CardView/examples/CardViewData.jsx';
-import { projectsQueryOptions } from "../utils/fetchProjects"
+  IconDots,
+  IconChevronLeft,
+  IconChevronRight,
+  IconChevronDown,
+} from '@tabler/icons-react';
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { CreateProject } from '@/components/CreateProjectForm';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { projectsQueryOptions } from '@/utils/fetchProjects';
 
-interface Project {
-  id: number;
-  project_name: string;
-  project_description: string;
-  project_objective: string;
-  project_stakeholders: string;
-}
 
-const rowActions = [
-  {
-    title: "View Details",
-    onClick: (event, rowData, ) => {
-      // Replace with your navigation or modal logic
-      console.log(
-        `Viewing details for project: ${rowData[0].cell.props.children}`
-      );
-    },
-  },
-  {
-    title: "Edit Project",
-    onClick: (event: React.MouseEvent, rowData: any, extraData: any) => {
-      // Replace with your edit logic
-      console.log(`Editing project: ${rowData[0].cell.props.children}`);
-    },
-  },
-  {
-    isSeparator: true,
-  },
-  {
-    title: "Delete Project",
-    onClick: (event: React.MouseEvent, rowData: any, extraData: any) => {
-      // Replace with your delete logic (e.g., show confirmation dialog)
-      console.log(`Deleting project: ${rowData[0].cell.props.children}`);
-    },
-    // Optionally, you can add a danger variant if supported
-    // variant: 'danger'
-  },
-];
+export default function ProjectsTable() {
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [creatorFilter, setCreatorFilter] = useState<string[]>([]);
+  const [pageSize, setPageSize] = useState('10');
+  const [currentPage, setCurrentPage] = useState(1);
 
-const columns = [
-  "Project Name",
-  "Description",
-  "Objective",
-  "Stakeholders",
-  {
-    cell: "Actions",
-    props: { isActionCell: true, style: { minWidth: 100 } },
-  },
-];
+   const { data: projects } = useSuspenseQuery(projectsQueryOptions);
 
-const ouiaId = "TableExample";
 
-const BasicExample: React.FunctionComponent = () => {
-  // const projects: Array<Project> = Route.useLoaderData();
-  const { data: projects } = useSuspenseQuery(projectsQueryOptions);
-
-  const totalItemCount = 10;
-
-  const [cardData, setCardData] = useState(projects);
-  const [isChecked, setIsChecked] = useState(false);
-  const [selectedItems, setSelectedItems] = useState<number[]>([]);
-  const [areAllSelected, setAreAllSelected] = useState<boolean>(false);
-  const [splitButtonDropdownIsOpen, setSplitButtonDropdownIsOpen] =
-    useState(false);
-  const [isLowerToolbarDropdownOpen, setIsLowerToolbarDropdownOpen] =
-    useState(false);
-  const [isLowerToolbarKebabDropdownOpen, setIsLowerToolbarKebabDropdownOpen] =
-    useState(false);
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
-  const [filters, setFilters] = useState<Record<string, string[]>>({
-    products: [],
-  });
-  const [state, setState] = useState({});
-
-  const checkAllSelected = (selected: number, total: number) => {
-    if (selected && selected < total) {
-      return null;
-    }
-    return selected === total;
-  };
-
-  const onToolbarDropdownToggle = () => {
-    setIsLowerToolbarDropdownOpen(!isLowerToolbarDropdownOpen);
-  };
-
-  const onToolbarKebabDropdownToggle = () => {
-    setIsLowerToolbarKebabDropdownOpen(!isLowerToolbarKebabDropdownOpen);
-  };
-
-  const onToolbarKebabDropdownSelect = () => {
-    setIsLowerToolbarKebabDropdownOpen(!isLowerToolbarKebabDropdownOpen);
-  };
-
-  const onCardKebabDropdownToggle = (
-    event:
-      | React.MouseEvent<HTMLButtonElement, MouseEvent>
-      | React.MouseEvent<HTMLDivElement, MouseEvent>,
-    key: string
-  ) => {
-    setState({
-      [key]: !state[key as keyof Object],
-    });
-  };
-
-  const deleteItem = (item: ProductType) => {
-    const filter = (getter) => (val) => getter(val) !== item.id;
-
-    setCardData(cardData.filter(filter(({ id }) => id)));
-
-    setSelectedItems(selectedItems.filter(filter((id) => id)));
-  };
-
-  const onSetPage = (_event: any, pageNumber: number) => {
-    setPage(pageNumber);
-  };
-
-  const onPerPageSelect = (_event: any, perPage: number) => {
-    setPerPage(perPage);
-    setPage(1);
-  };
-
-  const onSplitButtonToggle = () => {
-    setSplitButtonDropdownIsOpen(!splitButtonDropdownIsOpen);
-  };
-
-  const onSplitButtonSelect = () => {
-    setSplitButtonDropdownIsOpen(false);
-  };
-
-  const onNameSelect = (event: any, selection = "") => {
-    const checked = event.target.checked;
-    const prevSelections = filters.products;
-
-    setFilters({
-      ...filters,
-      products: checked
-        ? [...prevSelections, selection]
-        : prevSelections.filter((value) => value !== selection),
-    });
-  };
-
-  const onDelete = (type = "", _id = "") => {
-    if (type) {
-      setFilters(filters);
-    } else {
-      setFilters({ products: [] });
-    }
-  };
-
-  const onChange = (event: React.FormEvent<HTMLInputElement>) => {
-    const name = event.currentTarget.name;
-    const productId = Number(name.charAt(name.length - 1));
-
-    if (selectedItems.includes(productId * 1)) {
-      setSelectedItems(selectedItems.filter((id) => productId * 1 !== id));
-
-      const checkAll = checkAllSelected(
-        selectedItems.length - 1,
-        totalItemCount
-      );
-      setAreAllSelected(!!checkAll);
-    } else {
-      setSelectedItems([...selectedItems, productId * 1]);
-      const checkAll = checkAllSelected(
-        selectedItems.length + 1,
-        totalItemCount
-      );
-      setAreAllSelected(!!checkAll);
-    }
-  };
-
-  const updateSelected = () => {
-    const rows = cardData.map((post) => {
-      post.selected = selectedItems.includes(post.id);
-      return post;
-    });
-
-    setCardData(rows);
-  };
-
-  const getAllItems = () => {
-    const collection: number[] = [];
-    for (const items of cardData) {
-      collection.push(items.id);
-    }
-
-    return collection;
-  };
-
-  const splitCheckboxSelectAll = (e: any) => {
-    let collection: number[] = [];
-
-    if (e.target.checked) {
-      for (let i = 0; i <= 9; i++) {
-        collection = [...collection, i];
-      }
-    }
-
-    setSelectedItems(collection);
-    setIsChecked(isChecked);
-    setAreAllSelected(e.target.checked);
-
-    updateSelected();
-  };
-
-  const selectPage = (e: { target: { checked: any } }) => {
-    const { checked } = e.target;
-    let collection: number[] = [];
-
-    collection = getAllItems();
-
-    setSelectedItems(collection);
-    setIsChecked(checked);
-    setAreAllSelected(totalItemCount === perPage ? true : false);
-
-    updateSelected();
-  };
-
-  const selectAll = () => {
-    let collection: number[] = [];
-    for (let i = 0; i <= 9; i++) {
-      collection = [...collection, i];
-    }
-
-    setSelectedItems(collection);
-    setIsChecked(true);
-    setAreAllSelected(true);
-
-    updateSelected();
-  };
-
-  const selectNone = () => {
-    setSelectedItems([]);
-    setIsChecked(false);
-    setAreAllSelected(false);
-
-    updateSelected();
-  };
-
-  const renderPagination = () => {
-    const defaultPerPageOptions = [
-      {
-        title: "1",
-        value: 1,
-      },
-      {
-        title: "5",
-        value: 5,
-      },
-      {
-        title: "10",
-        value: 10,
-      },
-    ];
-
-    return (
-      <Pagination
-        itemCount={totalItemCount}
-        page={page}
-        perPage={perPage}
-        perPageOptions={defaultPerPageOptions}
-        onSetPage={onSetPage}
-        onPerPageSelect={onPerPageSelect}
-        variant="top"
-        isCompact
-      />
-    );
-  };
-
-  const buildSelectDropdown = () => {
-    const numSelected = selectedItems.length;
-    const anySelected = numSelected > 0;
-    const splitButtonDropdownItems = (
-      <>
-        <DropdownItem key="item-1" onClick={selectNone}>
-          Select none (0 items)
-        </DropdownItem>
-        <DropdownItem key="item-2" onClick={selectPage}>
-          Select page ({perPage} items)
-        </DropdownItem>
-        <DropdownItem key="item-3" onClick={selectAll}>
-          Select all ({totalItemCount} items)
-        </DropdownItem>
-      </>
-    );
-    return (
-      <Dropdown
-        onSelect={onSplitButtonSelect}
-        isOpen={splitButtonDropdownIsOpen}
-        onOpenChange={(isOpen) => setSplitButtonDropdownIsOpen(isOpen)}
-        toggle={(toggleRef) => (
-          <MenuToggle
-            ref={toggleRef}
-            isExpanded={splitButtonDropdownIsOpen}
-            onClick={onSplitButtonToggle}
-            aria-label="Select cards"
-            splitButtonItems={[
-              <MenuToggleCheckbox
-                id="split-dropdown-checkbox"
-                key="split-dropdown-checkbox"
-                aria-label={
-                  anySelected ? "Deselect all cards" : "Select all cards"
-                }
-                isChecked={areAllSelected}
-                onClick={(e) => splitCheckboxSelectAll(e)}
-              >
-                {numSelected !== 0 && `${numSelected} selected`}
-              </MenuToggleCheckbox>,
-            ]}
-          ></MenuToggle>
-        )}
-      >
-        <DropdownList>{splitButtonDropdownItems}</DropdownList>
-      </Dropdown>
-    );
-  };
-
-  const buildFilterDropdown = () => {
-    const filterDropdownItems = (
-      <SelectList>
-        <SelectOption
-          hasCheckbox
-          key="patternfly"
-          value="PatternFly"
-          isSelected={filters.products.includes("PatternFly")}
-        >
-          PatternFly
-        </SelectOption>
-        <SelectOption
-          hasCheckbox
-          key="activemq"
-          value="ActiveMQ"
-          isSelected={filters.products.includes("ActiveMQ")}
-        >
-          ActiveMQ
-        </SelectOption>
-        <SelectOption
-          hasCheckbox
-          key="apachespark"
-          value="Apache Spark"
-          isSelected={filters.products.includes("Apache Spark")}
-        >
-          Apache Spark
-        </SelectOption>
-        <SelectOption
-          hasCheckbox
-          key="avro"
-          value="Avro"
-          isSelected={filters.products.includes("Avro")}
-        >
-          Avro
-        </SelectOption>
-        <SelectOption
-          hasCheckbox
-          key="azureservices"
-          value="Azure Services"
-          isSelected={filters.products.includes("Azure Services")}
-        >
-          Azure Services
-        </SelectOption>
-        <SelectOption
-          hasCheckbox
-          key="crypto"
-          value="Crypto"
-          isSelected={filters.products.includes("Crypto")}
-        >
-          Crypto
-        </SelectOption>
-        <SelectOption
-          hasCheckbox
-          key="dropbox"
-          value="DropBox"
-          isSelected={filters.products.includes("DropBox")}
-        >
-          DropBox
-        </SelectOption>
-        <SelectOption
-          hasCheckbox
-          key="jbossdatagrid"
-          value="JBoss Data Grid"
-          isSelected={filters.products.includes("JBoss Data Grid")}
-        >
-          JBoss Data Grid
-        </SelectOption>
-        <SelectOption
-          hasCheckbox
-          key="rest"
-          value="REST"
-          isSelected={filters.products.includes("REST")}
-        >
-          REST
-        </SelectOption>
-        <SelectOption
-          hasCheckbox
-          key="swagger"
-          value="SWAGGER"
-          isSelected={filters.products.includes("SWAGGER")}
-        >
-          SWAGGER
-        </SelectOption>
-      </SelectList>
-    );
-
-    return (
-      <ToolbarFilter
-        categoryName="Products"
-        labels={filters.products}
-        deleteLabel={(type, id) => onDelete(type as string, id as string)}
-      >
-        <Select
-          aria-label="Products"
-          role="menu"
-          toggle={(toggleRef) => (
-            <MenuToggle
-              ref={toggleRef}
-              onClick={onToolbarDropdownToggle}
-              isExpanded={isLowerToolbarDropdownOpen}
-            >
-              Filter by creator name
-              {filters.products.length > 0 && (
-                <Badge isRead>{filters.products.length}</Badge>
-              )}
-            </MenuToggle>
-          )}
-          onSelect={(event, selection) =>
-            onNameSelect(event, selection.toString())
+  const rows = projects.map((project) => (
+    <Table.Tr
+      key={project.id}
+      bg={(selectedRows.includes(project.id) ? 'var(--mantine-color-blue-light)' : undefined) as StyleProp<DefaultMantineColor>}
+    >
+      <Table.Td>
+        <Checkbox
+          aria-label="Select row"
+          checked={selectedRows.includes(project.id)}
+          onChange={(event) =>
+            setSelectedRows(
+              event.currentTarget.checked
+                ? [...selectedRows, project.id]
+                : selectedRows.filter((id) => id !== project.id)
+            )
           }
-          onOpenChange={(isOpen) => {
-            setIsLowerToolbarDropdownOpen(isOpen);
-          }}
-          selected={filters.products}
-          isOpen={isLowerToolbarDropdownOpen}
-        >
-          {filterDropdownItems}
-        </Select>
-      </ToolbarFilter>
-    );
-  };
-
-  const toolbarKebabDropdownItems = [
-    <OverflowMenuDropdownItem itemId={0} key="link">
-      Link
-    </OverflowMenuDropdownItem>,
-    <OverflowMenuDropdownItem itemId={1} key="action" component="button">
-      Action
-    </OverflowMenuDropdownItem>,
-    <OverflowMenuDropdownItem itemId={2} key="disabled link" isDisabled>
-      Disabled Link
-    </OverflowMenuDropdownItem>,
-    <OverflowMenuDropdownItem
-      itemId={3}
-      key="disabled action"
-      isDisabled
-      component="button"
-    >
-      Disabled Action
-    </OverflowMenuDropdownItem>,
-    <Divider key="separator" />,
-    <OverflowMenuDropdownItem itemId={5} key="separated link">
-      Separated Link
-    </OverflowMenuDropdownItem>,
-    <OverflowMenuDropdownItem
-      itemId={6}
-      key="separated action"
-      component="button"
-    >
-      Separated Action
-    </OverflowMenuDropdownItem>,
-  ];
-
-  const toolbarItems = (
-    <Fragment>
-      <ToolbarItem>{buildSelectDropdown()}</ToolbarItem>
-      <ToolbarItem>{buildFilterDropdown()}</ToolbarItem>
-      <ToolbarItem>
-        <OverflowMenu breakpoint="md">
-          <OverflowMenuItem>
-            <CreateProjectWizard />
-          </OverflowMenuItem>
-          <OverflowMenuControl hasAdditionalOptions>
-            <Dropdown
-              onSelect={onToolbarKebabDropdownSelect}
-              toggle={(toggleRef) => (
-                <MenuToggle
-                  ref={toggleRef}
-                  aria-label="Toolbar kebab overflow menu"
-                  variant="plain"
-                  onClick={onToolbarKebabDropdownToggle}
-                  isExpanded={isLowerToolbarKebabDropdownOpen}
-                  icon={<EllipsisVIcon />}
-                />
-              )}
-              isOpen={isLowerToolbarKebabDropdownOpen}
-              onOpenChange={(isOpen) => setIsLowerToolbarDropdownOpen(isOpen)}
-            >
-              <DropdownList>{toolbarKebabDropdownItems}</DropdownList>
-            </Dropdown>
-          </OverflowMenuControl>
-        </OverflowMenu>
-      </ToolbarItem>
-      <ToolbarItem variant="pagination" align={{ default: "alignEnd" }}>
-        {renderPagination()}
-      </ToolbarItem>
-    </Fragment>
-  );
-
-  // const icons = {
-  //   pfIcon,
-  //   activeMQIcon,
-  //   sparkIcon,
-  //   avroIcon,
-  //   azureIcon,
-  //   saxonIcon,
-  //   dropBoxIcon,
-  //   infinispanIcon,
-  //   restIcon,
-  //   swaggerIcon
-  // };
-
-  const filtered =
-    filters.products.length > 0
-      ? data.filter(
-          (card: { name: string }) =>
-            filters.products.length === 0 ||
-            filters.products.includes(card.name)
-        )
-      : cardData.slice(
-          (page - 1) * perPage,
-          perPage === 1 ? page * perPage : page * perPage - 1
-        );
-
-  const rows = projects.map(
-    ({
-      id,
-      project_name,
-      project_description,
-      project_objective,
-      project_stakeholders,
-    }) => [
-      {
-        cell: (
-          <Button href="#" variant="link" isInline>
-            {project_name}
-          </Button>
-        ),
-      },
-      project_description,
-      project_objective,
-      project_stakeholders,
-      {
-        cell: <ActionsColumn items={rowActions} />,
-        props: { isActionCell: true, style: { textAlign: "center" } },
-      },
-    ]
-  );
+        />
+      </Table.Td>
+      <Table.Td>
+        <Link to="/projects/$projectId" params={{projectId: project.id.toString()}}><Text fw={500}>{project.project_name}</Text></Link>
+      </Table.Td>
+      <Table.Td>{project.project_description}</Table.Td>
+      <Table.Td>{project.project_objective}</Table.Td>
+      <Table.Td>{project.project_stakeholders}</Table.Td>
+      <Table.Td>
+        <Group gap="xs">
+          <Button size="xs" variant="outline">Edit</Button>
+          <Button size="xs" variant="outline" color="red">Delete</Button>
+        </Group>
+      </Table.Td>
+    </Table.Tr>
+  ));
 
   return (
-    <>
-      <PageSection>
-        <Content>
-          <h1>Projects</h1>
-          <p>List of projects.</p>
-        </Content>
-        <Toolbar id="toolbar-group-types" clearAllFilters={onDelete}>
-          <ToolbarContent>{toolbarItems}</ToolbarContent>
-        </Toolbar>
-      </PageSection>
+    <Box p="md">
+      {/* Header */}
+      <Text size="xl" fw={700} mb="xs">Projects</Text>
+      <Text c="dimmed" mb="lg">List of projects.</Text>
 
-      <PageSection>
-        <DataViewTable
-          aria-label="Projects table"
-          ouiaId={ouiaId}
-          columns={columns}
-          rows={rows}
-        />
-      </PageSection>
-    </>
+      {/* Top Controls */}
+      <Flex justify="space-between" align="center" mb="md" wrap="wrap" gap="md">
+        <Group>
+
+
+          {/* Creator Filter */}
+          <MultiSelect
+            placeholder="Filter by creator name"
+            data={[
+              { value: 'john', label: 'John Smith' },
+              { value: 'jane', label: 'Jane Doe' },
+            ]}
+            value={creatorFilter}
+            onChange={setCreatorFilter}
+            w={250}
+            rightSection={<IconChevronDown size={16} />}
+          />
+        </Group>
+
+        <Group>
+          {/* Create Project Button */}
+          <CreateProject/>
+
+          {/* More Actions Menu */}
+          <Menu shadow="md" width={200}>
+            <Menu.Target>
+              <ActionIcon variant="subtle" color="gray">
+                <IconDots size={16} />
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item>Action</Menu.Item>
+              <Menu.Divider />
+              <Menu.Item>Separated Action</Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        </Group>
+      </Flex>
+
+      {/* Table */}
+      <Table striped highlightOnHover>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th w={50}>
+              <Checkbox
+                checked={selectedRows.length === projects.length}
+                indeterminate={selectedRows.length > 0 && selectedRows.length < projects.length}
+                onChange={(event) =>
+                  setSelectedRows(event.currentTarget.checked ? projects.map(p => p.id) : [])
+                }
+              />
+            </Table.Th>
+            <Table.Th>Project Name</Table.Th>
+            <Table.Th>Description</Table.Th>
+            <Table.Th>Objective</Table.Th>
+            <Table.Th>Stakeholders</Table.Th>
+            <Table.Th>Actions</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>{rows}</Table.Tbody>
+      </Table>
+
+      {/* Bottom Pagination Controls */}
+      <Flex justify="space-between" align="center" mt="md">
+        <Group>
+          <Text size="sm" c="dimmed">
+            {selectedRows.length > 0 && `${selectedRows.length} selected`}
+          </Text>
+        </Group>
+
+        <Group>
+          {/* Items per page */}
+          <Select
+            value={pageSize}
+            onChange={(value) => value && setPageSize(value)}
+            data={[
+              { value: '1', label: '1 per page' },
+              { value: '5', label: '5 per page' },
+              { value: '10', label: '10 per page' },
+            ]}
+            w={130}
+            size="sm"
+          />
+
+          <Text size="sm" c="dimmed">
+            1 - {Math.min(parseInt(pageSize), projects.length)} of {projects.length}
+          </Text>
+
+          {/* Pagination buttons */}
+          <Group gap={5}>
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            >
+              <IconChevronLeft size={16} />
+            </ActionIcon>
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              disabled={currentPage * parseInt(pageSize) >= projects.length}
+              onClick={() => setCurrentPage(prev => prev + 1)}
+            >
+              <IconChevronRight size={16} />
+            </ActionIcon>
+          </Group>
+        </Group>
+      </Flex>
+
+    </Box>
   );
-};
+}
 
+export const Route = createFileRoute('/projects')({
+  loader: ( {context: { queryClient}}) => queryClient.ensureQueryData(projectsQueryOptions),
+  component: ProjectsTable,
+})
 
-
-export const Route = createFileRoute("/projects")({
-  loader: ( { context: { queryClient} } ) =>  {
-    queryClient.ensureQueryData(projectsQueryOptions)
-  },
-  component: BasicExample,
-});

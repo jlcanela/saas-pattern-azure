@@ -1,126 +1,81 @@
-import { useState, type FormEvent } from 'react';
+import { Box, Button, Modal } from "@mantine/core"
 import {
-  Form,
-  FormGroup,
-  TextInput,
-  TextArea,
-  FormSelect,
-  FormSelectOption,
-  Checkbox,
-  ActionGroup,
-  Button,
-  Radio,
-  HelperText,
-  HelperTextItem,
-  FormHelperText
-} from '@patternfly/react-core';
+    TextArea,
+    TextInput,
+} from "@inato-form/fields";
+import { useDisclosure } from "@mantine/hooks";
+import { IconPlus } from "@tabler/icons-react"
+import { ProjectRequest, projectsCreate } from "common";
+import { Effect, pipe } from "effect";
+import { FormBody, FormDisplay } from "@inato-form/core";
+import { MantineReactHookFormLive } from "./layer";
+import * as Mantine from "@mantine/core";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export const CreateProjectForm: React.FunctionComponent = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [experience, setExperience] = useState('');
-  const [option, setOption] = useState('please choose');
+export const CreateProject = () => {
+    const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure();
 
-const handleNameChange = (_event: FormEvent<HTMLInputElement>, value: string) => {
-  setName(value);
-};
+    const body = FormBody.struct({
+        project_name: TextInput.Required,
+        project_description: TextArea.Required,
+        project_objective: TextInput.Required,
+        project_stakeholders: TextInput.Required
+    });
 
-const handleEmailChange = (_event: FormEvent<HTMLInputElement>, value: string) => {
-  setEmail(value);
-};
+    const Display = pipe(
+        FormDisplay.make(body),
+        Effect.provide(MantineReactHookFormLive),
+        Effect.runSync
+    );
 
-// const handleEmailChange = (value: string, event: React.FormEvent<HTMLInputElement>) => {
-//   setEmail(value);
-// };
+    const queryClient = useQueryClient();
+    const mutation = useMutation({
+        mutationFn: (newProject: ProjectRequest) =>
+            projectsCreate(newProject).pipe(Effect.runPromise),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["projects"] });
+            closeModal();
+        },
+    });
 
+    const submit = (values: unknown) =>
+            mutation.mutate(values as ProjectRequest)
 
-  const handleExperienceChange = (_event: FormEvent<HTMLTextAreaElement>, experience: string) => {
-    setExperience(experience);
-  };
+    return (
+        <>
+            <Button
+                leftSection={<IconPlus size={16} />}
+                onClick={openModal}
+            >
+                Create a project
+            </Button>
 
-  const handleOptionChange = (_event: React.FormEvent<HTMLSelectElement>, value: string) => {
-    setOption(value);
-  };
+            <Modal
+                opened={modalOpened}
+                onClose={closeModal}
+                title="Create New Project"
+                centered
+                size="md"
+            >
+                <Box>
+                    <Display.Form
+                        onSubmit={({ encoded }) => submit(encoded)}
+                        onError={reportError}
+                        validationMode="onSubmit"
+                    >
+                        <Mantine.Stack>
+                            <Display.project_name label="Project name" placeholder="project name" />
+                            <Display.project_description label="Project description" placeholder="project description" />
+                            <Display.project_objective label="Project objective" placeholder="project objective" />
+                            <Display.project_stakeholders label="Project stakeholders" placeholder="project stakeholders" />
+                            <Mantine.Group justify="end">
+                                <Display.Submit>Create</Display.Submit>
+                            </Mantine.Group>
+                        </Mantine.Stack>
+                    </Display.Form>
+                </Box>
+            </Modal>
+        </>
 
-  const options = [
-    { value: 'select one', label: 'Select one', disabled: false },
-    { value: 'mr', label: 'Mr', disabled: false },
-    { value: 'miss', label: 'Miss', disabled: false },
-    { value: 'mrs', label: 'Mrs', disabled: false },
-    { value: 'ms', label: 'Ms', disabled: false },
-    { value: 'dr', label: 'Dr', disabled: false },
-    { value: 'other', label: 'Other', disabled: false }
-  ];
-
-  return (
-    <Form isHorizontal>
-      <FormGroup label="Full name" isRequired fieldId="horizontal-form-name">
-        <TextInput
-          value={name}
-          isRequired
-          type="text"
-          id="horizontal-form-name"
-          aria-describedby="horizontal-form-name-helper"
-          name="horizontal-form-name"
-          onChange={handleNameChange}
-        />
-        <FormHelperText>
-          <HelperText>
-            <HelperTextItem>Include your middle name if you have one.</HelperTextItem>
-          </HelperText>
-        </FormHelperText>
-      </FormGroup>
-      <FormGroup label="Email" isRequired fieldId="horizontal-form-email">
-        <TextInput
-          value={email}
-          isRequired
-          type="email"
-          id="horizontal-form-email"
-          name="horizontal-form-email"
-          onChange={handleEmailChange}
-        />
-      </FormGroup>
-      <FormGroup label="Your title" fieldId="horizontal-form-title">
-        <FormSelect
-          value={option}
-          onChange={handleOptionChange}
-          id="horizontal-form-title"
-          name="horizontal-form-title"
-          aria-label="Your title"
-        >
-          {options.map((option, index) => (
-            <FormSelectOption isDisabled={option.disabled} key={index} value={option.value} label={option.label} />
-          ))}
-        </FormSelect>
-      </FormGroup>
-      <FormGroup label="Your experience" fieldId="horizontal-form-exp">
-        <TextArea
-          value={experience}
-          onChange={handleExperienceChange}
-          id="horizontal-form-exp"
-          name="horizontal-form-exp"
-        />
-      </FormGroup>
-      <FormGroup
-        label="How can we contact you?"
-        isStack
-        fieldId="horizontal-form-checkbox-group"
-        hasNoPaddingTop
-        role="group"
-      >
-        <Checkbox label="Email" id="alt-form-checkbox-1" name="alt-form-checkbox-1" />
-        <Checkbox label="Phone" id="alt-form-checkbox-2" name="alt-form-checkbox-2" />
-        <Checkbox label="Mail" id="alt-form-checkbox-3" name="alt-form-checkbox-3" />
-      </FormGroup>
-      <FormGroup role="radiogroup" isStack fieldId="horizontal-form-radio-group" hasNoPaddingTop label="Time zone">
-        <Radio name="horizontal-inline-radio" label="Eastern" id="horizontal-inline-radio-01" />
-        <Radio name="horizontal-inline-radio" label="Central" id="horizontal-inline-radio-02" />
-        <Radio name="horizontal-inline-radio" label="Pacific" id="horizontal-inline-radio-03" />
-      </FormGroup>
-      <ActionGroup>
-        <Button variant="primary">Submit</Button>
-        <Button variant="link">Cancel</Button>
-      </ActionGroup>
-    </Form>
-  );
-};
+    )
+}

@@ -17,8 +17,6 @@ export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
     Effect.gen(function* () {
       const endpoint = process.env.COSMOS_ENDPOINT
       const key = process.env.COSMOS_KEY
-
-      yield* Effect.log("Endpoint:", endpoint)
       const client = new CosmosClient({
         endpoint,
         key,

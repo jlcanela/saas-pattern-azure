@@ -1,4 +1,5 @@
-import { Content, PageSection } from "@patternfly/react-core";
+import Card from "@/components/Card";
+import { Badge } from "@mantine/core";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
@@ -7,10 +8,11 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <PageSection>
-      <Content>
+<div>
+
         <h1>Dashboard</h1>
-      </Content>
-    </PageSection>
+         <Badge color="blue">Badge</Badge>;
+        <Card/>
+</div>
   );
 }

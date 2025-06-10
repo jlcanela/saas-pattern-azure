@@ -60,7 +60,7 @@ export class Permission extends Context.Tag("Permission")<
         [namespace]: App
       }))
 
-      console.log(JSON.stringify(schema, null, 4))
+      // console.log(JSON.stringify(schema, null, 4))
 
       const policies = {
         staticPolicies,

@@ -12,22 +12,16 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as ProjectsImport } from './routes/projects'
-import { Route as FormImport } from './routes/form'
 import { Route as AdministrationImport } from './routes/administration'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
+import { Route as ProjectsProjectIdImport } from './routes/projects_.$projectId'
 
 // Create/Update Routes
 
 const ProjectsRoute = ProjectsImport.update({
   id: '/projects',
   path: '/projects',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const FormRoute = FormImport.update({
-  id: '/form',
-  path: '/form',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -46,6 +40,12 @@ const AboutRoute = AboutImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ProjectsProjectIdRoute = ProjectsProjectIdImport.update({
+  id: '/projects_/$projectId',
+  path: '/projects/$projectId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -74,18 +74,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdministrationImport
       parentRoute: typeof rootRoute
     }
-    '/form': {
-      id: '/form'
-      path: '/form'
-      fullPath: '/form'
-      preLoaderRoute: typeof FormImport
-      parentRoute: typeof rootRoute
-    }
     '/projects': {
       id: '/projects'
       path: '/projects'
       fullPath: '/projects'
       preLoaderRoute: typeof ProjectsImport
+      parentRoute: typeof rootRoute
+    }
+    '/projects_/$projectId': {
+      id: '/projects_/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/projects/$projectId'
+      preLoaderRoute: typeof ProjectsProjectIdImport
       parentRoute: typeof rootRoute
     }
   }
@@ -97,16 +97,16 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/administration': typeof AdministrationRoute
-  '/form': typeof FormRoute
   '/projects': typeof ProjectsRoute
+  '/projects/$projectId': typeof ProjectsProjectIdRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/administration': typeof AdministrationRoute
-  '/form': typeof FormRoute
   '/projects': typeof ProjectsRoute
+  '/projects/$projectId': typeof ProjectsProjectIdRoute
 }
 
 export interface FileRoutesById {
@@ -114,16 +114,27 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/administration': typeof AdministrationRoute
-  '/form': typeof FormRoute
   '/projects': typeof ProjectsRoute
+  '/projects_/$projectId': typeof ProjectsProjectIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/administration' | '/form' | '/projects'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/administration'
+    | '/projects'
+    | '/projects/$projectId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/administration' | '/form' | '/projects'
-  id: '__root__' | '/' | '/about' | '/administration' | '/form' | '/projects'
+  to: '/' | '/about' | '/administration' | '/projects' | '/projects/$projectId'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/administration'
+    | '/projects'
+    | '/projects_/$projectId'
   fileRoutesById: FileRoutesById
 }
 
@@ -131,16 +142,16 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AdministrationRoute: typeof AdministrationRoute
-  FormRoute: typeof FormRoute
   ProjectsRoute: typeof ProjectsRoute
+  ProjectsProjectIdRoute: typeof ProjectsProjectIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AdministrationRoute: AdministrationRoute,
-  FormRoute: FormRoute,
   ProjectsRoute: ProjectsRoute,
+  ProjectsProjectIdRoute: ProjectsProjectIdRoute,
 }
 
 export const routeTree = rootRoute
@@ -156,8 +167,8 @@ export const routeTree = rootRoute
         "/",
         "/about",
         "/administration",
-        "/form",
-        "/projects"
+        "/projects",
+        "/projects_/$projectId"
       ]
     },
     "/": {
@@ -169,11 +180,11 @@ export const routeTree = rootRoute
     "/administration": {
       "filePath": "administration.tsx"
     },
-    "/form": {
-      "filePath": "form.tsx"
-    },
     "/projects": {
       "filePath": "projects.tsx"
+    },
+    "/projects_/$projectId": {
+      "filePath": "projects_.$projectId.tsx"
     }
   }
 }

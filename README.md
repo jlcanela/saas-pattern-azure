@@ -27,7 +27,21 @@ docker run -p 8000:8000 saas-pattern-azure
 
 ```
 buildah bud -f infra/docker/Dockerfile -t saas-pattern-azure .
-podman run -p 8000:8000 localhost/saas-pattern-azure
+# if using remote podman:
+rm saas-pattern-azure.tar
+buildah push saas-pattern-azure docker-archive:saas-pattern-azure.tar
+podman load -i saas-pattern-azure.tar 
+podman pod create --name azurepod -p 8000:8000 -p 1234:1234
+podman run --pod azurepod --env AZURE_COSMOS_EMULATOR_IP_ADDRESS_OVERRIDE=127.0.0.1 -d --name cosmosdb-emulator mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview
+podman run --pod azurepod -d \
+  -e COSMOS_ENDPOINT="http://localhost:8081" \
+  -e COSMOS_KEY="C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==" \
+  localhost/saas-pattern-azure
+```
+
+```
+podman pod stop azurepod
+podman pod rm azurepod
 ```
 
 ## Perf test

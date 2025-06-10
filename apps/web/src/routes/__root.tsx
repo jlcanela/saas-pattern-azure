@@ -4,9 +4,10 @@ import {
   Outlet,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { QueryClient } from '@tanstack/react-query'
 
 export const Route = createRootRouteWithContext<{
-  queryClient: unknown;
+  queryClient: QueryClient;
 }>()({
   component: () => (
     <>

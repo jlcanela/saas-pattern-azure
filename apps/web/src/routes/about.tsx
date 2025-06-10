@@ -1,6 +1,3 @@
-import {
-  PageSection,
-} from "@patternfly/react-core";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/about")({
@@ -9,10 +6,11 @@ export const Route = createFileRoute("/about")({
 
 function About() {
   return (
-    <PageSection>
+    <div>
+
       <Link to="/" className="[&.active]:font-bold">
         Home
       </Link>{" "}
-    </PageSection>
+    </div>
   );
 }

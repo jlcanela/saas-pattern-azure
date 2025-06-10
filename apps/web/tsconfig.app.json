@@ -11,6 +11,8 @@
       "@/*": ["./src/*"]
     },
 
+    "types": ["@mantine/core", "react", "effect"],
+
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
