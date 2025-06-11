@@ -12,7 +12,8 @@ import {
   Box,
   Flex,
   type StyleProp,
-  type DefaultMantineColor
+  type DefaultMantineColor,
+  type ComboboxItem
 } from '@mantine/core';
 
 import {
@@ -35,7 +36,7 @@ export default function ProjectsTable() {
 
   const { data: projects } = useSuspenseQuery(projectsQueryOptions);
 
-  const handleBulkAction = (action: string) => {
+  const handleBulkAction = (action: string | null, _option: ComboboxItem ) => {
     switch (action) {
       case 'delete':
         console.log('Deleting selected:', selectedRows)

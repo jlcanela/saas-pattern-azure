@@ -3,7 +3,8 @@ import react from '@vitejs/plugin-react'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import path from 'path';
 
-console.log(process.env)
+const apiTarget = process.env.services__Api__http__0 || "http://localhost:8000"
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -21,11 +22,11 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       "/api": {
-        target: "http://localhost:8000",
+        target: apiTarget,
         changeOrigin: true,
       },
       "/docs": {
-        target: "http://localhost:8000",
+        target: apiTarget,
         changeOrigin: true,
       },
     },

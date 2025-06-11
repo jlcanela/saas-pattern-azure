@@ -8,90 +8,38 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as ProjectsRouteImport } from './routes/projects'
+import { Route as AdministrationRouteImport } from './routes/administration'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProjectsProjectIdRouteImport } from './routes/projects_.$projectId'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as ProjectsImport } from './routes/projects'
-import { Route as AdministrationImport } from './routes/administration'
-import { Route as AboutImport } from './routes/about'
-import { Route as IndexImport } from './routes/index'
-import { Route as ProjectsProjectIdImport } from './routes/projects_.$projectId'
-
-// Create/Update Routes
-
-const ProjectsRoute = ProjectsImport.update({
+const ProjectsRoute = ProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const AdministrationRoute = AdministrationImport.update({
+const AdministrationRoute = AdministrationRouteImport.update({
   id: '/administration',
   path: '/administration',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const AboutRoute = AboutImport.update({
+const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const IndexRoute = IndexImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const ProjectsProjectIdRoute = ProjectsProjectIdImport.update({
+const ProjectsProjectIdRoute = ProjectsProjectIdRouteImport.update({
   id: '/projects_/$projectId',
   path: '/projects/$projectId',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-// Populate the FileRoutesByPath interface
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutImport
-      parentRoute: typeof rootRoute
-    }
-    '/administration': {
-      id: '/administration'
-      path: '/administration'
-      fullPath: '/administration'
-      preLoaderRoute: typeof AdministrationImport
-      parentRoute: typeof rootRoute
-    }
-    '/projects': {
-      id: '/projects'
-      path: '/projects'
-      fullPath: '/projects'
-      preLoaderRoute: typeof ProjectsImport
-      parentRoute: typeof rootRoute
-    }
-    '/projects_/$projectId': {
-      id: '/projects_/$projectId'
-      path: '/projects/$projectId'
-      fullPath: '/projects/$projectId'
-      preLoaderRoute: typeof ProjectsProjectIdImport
-      parentRoute: typeof rootRoute
-    }
-  }
-}
-
-// Create and export the route tree
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -100,7 +48,6 @@ export interface FileRoutesByFullPath {
   '/projects': typeof ProjectsRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
 }
-
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
@@ -108,16 +55,14 @@ export interface FileRoutesByTo {
   '/projects': typeof ProjectsRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
 }
-
 export interface FileRoutesById {
-  __root__: typeof rootRoute
+  __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/administration': typeof AdministrationRoute
   '/projects': typeof ProjectsRoute
   '/projects_/$projectId': typeof ProjectsProjectIdRoute
 }
-
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
@@ -137,13 +82,52 @@ export interface FileRouteTypes {
     | '/projects_/$projectId'
   fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AdministrationRoute: typeof AdministrationRoute
   ProjectsRoute: typeof ProjectsRoute
   ProjectsProjectIdRoute: typeof ProjectsProjectIdRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/administration': {
+      id: '/administration'
+      path: '/administration'
+      fullPath: '/administration'
+      preLoaderRoute: typeof AdministrationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects': {
+      id: '/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof ProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects_/$projectId': {
+      id: '/projects_/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/projects/$projectId'
+      preLoaderRoute: typeof ProjectsProjectIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -153,39 +137,6 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsRoute: ProjectsRoute,
   ProjectsProjectIdRoute: ProjectsProjectIdRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/",
-        "/about",
-        "/administration",
-        "/projects",
-        "/projects_/$projectId"
-      ]
-    },
-    "/": {
-      "filePath": "index.tsx"
-    },
-    "/about": {
-      "filePath": "about.tsx"
-    },
-    "/administration": {
-      "filePath": "administration.tsx"
-    },
-    "/projects": {
-      "filePath": "projects.tsx"
-    },
-    "/projects_/$projectId": {
-      "filePath": "projects_.$projectId.tsx"
-    }
-  }
-}
-ROUTE_MANIFEST_END */

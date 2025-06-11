@@ -1,6 +1,6 @@
 import { HttpApiBuilder, HttpApiSwagger, HttpMiddleware, HttpServer, KeyValueStore } from "@effect/platform"
 import { NodeHttpServer, NodeSocket } from "@effect/platform-node"
-import { Effect, Layer, Logger } from "effect"
+import { Layer} from "effect"
 import { createServer } from "http"
 import { HttpMonitoringLive } from "./Monitoring/Http.js"
 import { HttpProjectLive } from "./Project/Http.js"
@@ -11,6 +11,7 @@ import { HistoryRepo } from "./History/Repo.js"
 import { DevTools } from "@effect/experimental"
 import { Cosmos } from "./lib/CosmosDb.js"
 import { TracingLive } from "./lib/tracing.js"
+import { OTLPLoggingLive } from "./lib/oltplogging.ts"
 
 const DevToolsLive = DevTools.layerWebSocket().pipe(
     Layer.provide(NodeSocket.layerWebSocketConstructor),
@@ -30,6 +31,7 @@ const portEnv = process.env.PORT;
 const port = Number.isInteger(Number(portEnv)) && Number(portEnv) > 0 ? Number(portEnv) : 8000;
 
 export const HttpLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
+  Layer.provide(OTLPLoggingLive),
   Layer.provide(TracingLive),
   Layer.provide(DevToolsLive),
   Layer.provide(HttpApiSwagger.layer()),
@@ -42,6 +44,7 @@ export const HttpLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(WebAppRoutes),
   Layer.provide(Cosmos.Default),
   HttpServer.withLogAddress,
-  Layer.provide(Logger.json),
-  Layer.provide(NodeHttpServer.layer(createServer, { port }))
+//  Layer.provide(Logger.json),
+  Layer.provide(NodeHttpServer.layer(createServer, { port })),
+  //Logger.withMinimumLogLevel(LogLevel.Info)
 )

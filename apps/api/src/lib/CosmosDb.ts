@@ -1,8 +1,7 @@
 import "dotenv/config"
-import { ConnectionMode, CosmosClient, type ItemDefinition, PartitionKeyKind } from "@azure/cosmos"
+import { CosmosClient, type ItemDefinition, PartitionKeyKind } from "@azure/cosmos"
 import { Console, Data, Effect, pipe, Schedule } from "effect"
 import { timed } from "./timed.ts"
-import { Agent } from "http"
 
 export class DatabaseError extends Data.TaggedError("DatabaseError")<{
   error: unknown
@@ -53,6 +52,12 @@ export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
           enableEndpointDiscovery: false,
         }
       }
+
+        yield* Effect.logInfo("Creating Cosmos Client", {
+    userId: 123,
+    action: "click",
+    value: Math.random()
+  })
       const client = new CosmosClient(connectionParams)
 
       function readAllDatabases() {

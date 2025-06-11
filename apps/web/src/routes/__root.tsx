@@ -1,4 +1,4 @@
-import Page from "@/components/Page";
+import AppShell from "@/components/AppShell";
 import {
   createRootRouteWithContext,
   Outlet,
@@ -11,9 +11,9 @@ export const Route = createRootRouteWithContext<{
 }>()({
   component: () => (
     <>
-      <Page>
+      <AppShell>
         <Outlet />
-      </Page>
+      </AppShell>
       <TanStackRouterDevtools />
     </>
   ),

@@ -159,3 +159,17 @@ podman run -d -p 9411:9411 \
  -e JAVA_OPTS="-Dlogging.level.zipkin2=DEBUG" \
  openzipkin/zipkin 
 ```
+
+
+# Tracing
+
+4317:18889 => GRPC
+18890:18890 => HTTP
+```
+podman run --rm -it -d \
+    -p 18888:18888 \
+    -p 18890:18890 \
+    -p 4317:18889 \
+    --name aspire-dashboard \
+    mcr.microsoft.com/dotnet/aspire-dashboard:9.0
+```
