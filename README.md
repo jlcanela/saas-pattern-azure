@@ -44,6 +44,14 @@ podman pod stop azurepod
 podman pod rm azurepod
 ```
 
+## Run with .Net Aspire
+
+To run the Aspire config: 
+```
+cd AspireApp.AppHost
+dotnet run
+```
+
 ## Perf test
 
 ```

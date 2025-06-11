@@ -33,8 +33,20 @@ export default function ProjectsTable() {
   const [pageSize, setPageSize] = useState('10');
   const [currentPage, setCurrentPage] = useState(1);
 
-   const { data: projects } = useSuspenseQuery(projectsQueryOptions);
+  const { data: projects } = useSuspenseQuery(projectsQueryOptions);
 
+  const handleBulkAction = (action: string) => {
+    switch (action) {
+      case 'delete':
+        console.log('Deleting selected:', selectedRows)
+        // Add your delete logic here
+        break
+      case 'export':
+        console.log('Exporting selected:', selectedRows)
+        // Add export logic
+        break
+    }
+  }
 
   const rows = projects.map((project) => (
     <Table.Tr
@@ -55,7 +67,7 @@ export default function ProjectsTable() {
         />
       </Table.Td>
       <Table.Td>
-        <Link to="/projects/$projectId" params={{projectId: project.id.toString()}}><Text fw={500}>{project.project_name}</Text></Link>
+        <Link to="/projects/$projectId" params={{ projectId: project.id.toString() }}><Text fw={500}>{project.project_name}</Text></Link>
       </Table.Td>
       <Table.Td>{project.project_description}</Table.Td>
       <Table.Td>{project.project_objective}</Table.Td>
@@ -96,9 +108,22 @@ export default function ProjectsTable() {
 
         <Group>
           {/* Create Project Button */}
-          <CreateProject/>
+          <CreateProject />
 
-          {/* More Actions Menu */}
+          {selectedRows.length > 0 && (
+            <>
+            <Select
+              placeholder="Bulk actions"
+              data={[
+                { value: 'delete', label: 'Delete selected' },
+                { value: 'export', label: 'Export selected' },
+              ]}
+              onChange={handleBulkAction}
+              w={200}
+              rightSection={<IconChevronDown size={16} />}
+              />
+
+               {/* More Actions Menu */}
           <Menu shadow="md" width={200}>
             <Menu.Target>
               <ActionIcon variant="subtle" color="gray">
@@ -111,6 +136,10 @@ export default function ProjectsTable() {
               <Menu.Item>Separated Action</Menu.Item>
             </Menu.Dropdown>
           </Menu>
+              </>
+          ) }
+
+         
         </Group>
       </Flex>
 
@@ -190,7 +219,7 @@ export default function ProjectsTable() {
 }
 
 export const Route = createFileRoute('/projects')({
-  loader: ( {context: { queryClient}}) => queryClient.ensureQueryData(projectsQueryOptions),
+  loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(projectsQueryOptions),
   component: ProjectsTable,
 })
 

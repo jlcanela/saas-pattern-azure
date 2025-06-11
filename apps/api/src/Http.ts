@@ -1,6 +1,6 @@
 import { HttpApiBuilder, HttpApiSwagger, HttpMiddleware, HttpServer, KeyValueStore } from "@effect/platform"
 import { NodeHttpServer, NodeSocket } from "@effect/platform-node"
-import { Layer } from "effect"
+import { Effect, Layer, Logger } from "effect"
 import { createServer } from "http"
 import { HttpMonitoringLive } from "./Monitoring/Http.js"
 import { HttpProjectLive } from "./Project/Http.js"
@@ -26,6 +26,9 @@ const ApiLive = Layer.provide(HttpApiBuilder.api(Api), [
 //   Layer.provide(ServerLive),
 //   Layer.provide(Permission.live),
 
+const portEnv = process.env.PORT;
+const port = Number.isInteger(Number(portEnv)) && Number(portEnv) > 0 ? Number(portEnv) : 8000;
+
 export const HttpLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(TracingLive),
   Layer.provide(DevToolsLive),
@@ -39,5 +42,6 @@ export const HttpLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(WebAppRoutes),
   Layer.provide(Cosmos.Default),
   HttpServer.withLogAddress,
-  Layer.provide(NodeHttpServer.layer(createServer, { port: 8000 }))
+  Layer.provide(Logger.json),
+  Layer.provide(NodeHttpServer.layer(createServer, { port }))
 )

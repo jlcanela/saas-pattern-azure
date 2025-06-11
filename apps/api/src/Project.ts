@@ -13,25 +13,15 @@ export class Project extends Effect.Service<Project>()("Project", {
     const projectRepo = yield* ProjectRepo
     const historyRepo = yield* HistoryRepo
 
-
-
     const createProject = (payload: ProjectRequest) => Effect.gen(function* (_) {
       const id = uuidv4()
       return yield* cosmos.writeDocument({ id, project_id: id, ...payload })
-    }).pipe(
-      // Effect.catchTag("ParseError", (error) => Effect.flip(HttpApiError.HttpApiDecodeError.fromParseError(error))),
-      // Effect.catchTag("BadArgument", () => Effect.fail(new HttpApiError.BadRequest())),
-      // Effect.catchTag("SystemError", () => Effect.fail(new HttpApiError.InternalServerError())),
-    )
+    })
 
     const findById = (id: string) => Effect.gen(function* (_) {
       const { resource } = yield* cosmos.readDocument(id)
       return ProjectResponse.make(resource)
-    }).pipe(
-      // Effect.catchTag("ParseError", (error) => Effect.flip(HttpApiError.HttpApiDecodeError.fromParseError(error))),
-      // Effect.catchTag("BadArgument", () => Effect.fail(new HttpApiError.BadRequest())),
-      // Effect.catchTag("SystemError", () => Effect.fail(new HttpApiError.InternalServerError())),
-    )
+    })
 
     const update = (payload: ProjectT) =>
       Effect.gen(function* (_) {
@@ -54,15 +44,14 @@ export class Project extends Effect.Service<Project>()("Project", {
     const listProject = () => Effect.gen(function* (_) {
       const projects = yield* cosmos.query()
       return ProjectsResponse.make({ projects })
-    }).pipe(
-      //Effect.catchTag("ParseError", (error) => Effect.flip(HttpApiError.HttpApiDecodeError.fromParseError(error))),
-      //Effect.catchTag("BadArgument", () => Effect.fail(new HttpApiError.BadRequest())),
-      //Effect.catchTag("SystemError", () => Effect.fail(new HttpApiError.InternalServerError())),
-    )
+    })
 
-    const ProjectArbitrary = Arbitrary.make(ProjectRequest)
-    const sampleProjects = FastCheck.sample(ProjectArbitrary, 4)
-    yield* Effect.forEach(sampleProjects, createProject)
+    const nb = (yield* listProject()).projects.length
+    if (nb == 0) {
+      const ProjectArbitrary = Arbitrary.make(ProjectRequest)
+      const sampleProjects = FastCheck.sample(ProjectArbitrary, 4)
+      yield* Effect.forEach(sampleProjects, createProject)
+    }
     return { createProject, findById, update, findProjectHistoryById, listProject } as const
   }),
   dependencies: [ProjectRepo.live, HistoryRepo.live, KeyValueStore.layerMemory]

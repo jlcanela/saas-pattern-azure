@@ -2,6 +2,7 @@ import "dotenv/config"
 import { ConnectionMode, CosmosClient, type ItemDefinition, PartitionKeyKind } from "@azure/cosmos"
 import { Console, Data, Effect, pipe, Schedule } from "effect"
 import { timed } from "./timed.ts"
+import { Agent } from "http"
 
 export class DatabaseError extends Data.TaggedError("DatabaseError")<{
   error: unknown
@@ -11,19 +12,48 @@ export class DatabaseError extends Data.TaggedError("DatabaseError")<{
   }
 }
 
+function connectionParam(name: string): Effect.Effect<{ endpoint: string; key: string }, string>  {
+  
+  const connectionStringName = `ConnectionStrings__${name}`;
+  const connectionString = process.env[connectionStringName]
+  const cosmosEndpoint = process.env.COSMOS_ENDPOINT;
+  const cosmosKey = process.env.COSMOS_KEY;
+
+  if (connectionString) {
+    const parts = connectionString.split(';').filter(Boolean);
+    const map: Record<string, string> = {};
+    for (const part of parts) {
+      const [key, ...rest] = part.split('=');
+      map[key] = rest.join('=');
+    }
+    const endpoint = map['AccountEndpoint'];
+    const key = map['AccountKey'];
+    if (endpoint && key) {
+      return Effect.succeed({ endpoint, key });
+    }
+  } else if (cosmosEndpoint && cosmosKey) {
+    return Effect.succeed({ endpoint: cosmosEndpoint, key: cosmosKey });
+  }
+  return Effect.fail("INVALID_COSMOSDB_CONFIG");
+}
+
 export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
   effect: timed(
     "Creating CosmosDb Service",
     Effect.gen(function* () {
-      const endpoint = process.env.COSMOS_ENDPOINT
-      const key = process.env.COSMOS_KEY
-      const client = new CosmosClient({
+      const { endpoint, key } = yield* pipe(
+        connectionParam("cosmos"), 
+        Effect.tapError((err) => Effect.log(err)),
+      )
+
+      const connectionParams = {
         endpoint,
         key,
         connectionPolicy: {
-          connectionMode: ConnectionMode.Gateway
+          enableEndpointDiscovery: false,
         }
-      })
+      }
+      const client = new CosmosClient(connectionParams)
 
       function readAllDatabases() {
         return Effect.gen(function* () {

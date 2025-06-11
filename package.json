@@ -4,7 +4,9 @@
     "build": "pnpm run -r build",
     "dev": "turbo dev",
     "lint": "pnpm run -r lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "webdev": "pnpm run --filter web dev",
+    "apidev": "export && pnpm run --filter api dev"
   },
   "dependencies": {
     "effect": "3.12.5"
