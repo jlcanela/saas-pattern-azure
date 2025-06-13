@@ -15,6 +15,7 @@
     "infra-stop": "podman stop cosmosdb-emulator && podman stop zipkin2",
     "predev2": "podman start cosmosdb-emulator 2>/dev/null || podman run --env AZURE_COSMOS_EMULATOR_IP_ADDRESS_OVERRIDE=127.0.0.1 --rm --name cosmosdb-emulator --detach --publish 8081:8081 --publish 1234:1234 mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview && podman start zipkin2 2>/dev/null || podman run --name zipkin2 -d -p 9411:9411 -e JAVA_OPTS='-Dlogging.level.zipkin2=DEBUG' openzipkin/zipkin",
     "dev": "NODE_OPTIONS='--experimental-wasm-modules --disable-warning=ExperimentalWarning' tsx --watch src/index.ts ../web/dist",
+    "dev-aspire": " dotnet dev-certs https --export-path ./aspire-dev-cert.crt --format PEM && NODE_EXTRA_CA_CERTS=./aspire-dev-cert.crt NODE_OPTIONS='--experimental-wasm-modules --disable-warning=ExperimentalWarning' tsx --watch src/index.ts ../web/dist",
     "postdev2": "podman stop cosmosdb-emulator && podman stop zipkin2",
     "test": "vitest  --disableConsoleIntercept=false --watch",
     "test:coverage": "vitest run --coverage"

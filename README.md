@@ -157,6 +157,18 @@ podman run --rm -it -d \
 pnpm run dev
 ```
 
+in any issue with Aspire OLTP, please use the following:
+```
+dotnet dev-certs https --export-path ./aspire-dev-cert.crt --format PEM
+sudo cp ./aspire-dev-cert.crt /usr/local/share/ca-certificates/
+sudo update-ca-certificates
+```
+
+it seems that the following command is not registering the certificate properly on linux:
+```
+dotnet dev-certs https --trust
+```
+
 ## License
 
 The source code is under MIT License.

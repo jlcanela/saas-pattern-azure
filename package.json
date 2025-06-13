@@ -6,7 +6,7 @@
     "lint": "pnpm run -r lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "webdev": "pnpm run --filter web dev",
-    "apidev": "export && pnpm run --filter api dev"
+    "apidev": "export && pnpm run --filter api dev-aspire"
   },
   "dependencies": {
     "effect": "3.12.5"
