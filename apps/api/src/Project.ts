@@ -19,21 +19,28 @@ export class Project extends Effect.Service<Project>()("Project", {
     })
 
     const findById = (id: string) => Effect.gen(function* (_) {
+      yield* Effect.log(`findProjectById: ${id}`)
       const { resource } = yield* cosmos.readDocument(id)
       return ProjectResponse.make(resource)
-    })
+    }).pipe(
+      Effect.withSpan("findProjectById")
+    )
 
     const update = (payload: ProjectT) =>
       Effect.gen(function* (_) {
-        return yield* projectRepo.update(payload)
+        yield* Effect.log(`updateProject: ${payload.id}`)  
+        return (yield* projectRepo.update(payload)) as ProjectResponse
       }).pipe(
+        Effect.withSpan("updateProject"),
         Effect.catchTag("ParseError", (error) => Effect.flip(HttpApiError.HttpApiDecodeError.fromParseError(error))),
         Effect.catchTag("BadArgument", () => Effect.fail(new HttpApiError.BadRequest())),
         Effect.catchTag("SystemError", () => Effect.fail(new HttpApiError.InternalServerError)))
 
     const findProjectHistoryById = (id: string) => Effect.gen(function* (_) {
+      yield* Effect.log(`findProjectHistoryById: ${id}`)  
       return yield* historyRepo.findById(id).pipe(
         Effect.flatMap((history) => history),
+        Effect.withSpan("findProjectHistoryById"),
         Effect.catchTag("ParseError", (error) => Effect.flip(HttpApiError.HttpApiDecodeError.fromParseError(error))),
         Effect.catchTag("BadArgument", () => Effect.fail(new HttpApiError.BadRequest())),
         Effect.catchTag("SystemError", () => Effect.fail(new HttpApiError.InternalServerError())),
@@ -42,12 +49,16 @@ export class Project extends Effect.Service<Project>()("Project", {
     })
 
     const listProject = () => Effect.gen(function* (_) {
+      yield* Effect.log(`listProject`)  
       const projects = yield* cosmos.query()
       return ProjectsResponse.make({ projects })
-    })
+    }).pipe(
+      Effect.withSpan("listProjects")
+    )
 
     const nb = (yield* listProject()).projects.length
     if (nb == 0) {
+      yield* Effect.log("No project found, creating 4 sample projects")
       const ProjectArbitrary = Arbitrary.make(ProjectRequest)
       const sampleProjects = FastCheck.sample(ProjectArbitrary, 4)
       yield* Effect.forEach(sampleProjects, createProject)

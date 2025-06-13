@@ -116,6 +116,47 @@ The file '.github/workflows/undeploy-azure.yml' is provided but would require
 either admin or owner rights.
 
 
+
+
+
+# Cosmosdb emulation
+
+Using Aspire CosmosDb is provided automatically
+```
+cd AspireApp.AppHost
+dotnet run
+``` 
+
+Another option is to start it from the api project:
+```
+pnpm --filter api run infra
+```
+
+The explorer is available at: http://localhost:1234/
+
+# Trace
+
+https://effect.website/docs/observability/tracing/
+
+Using grafana dashboard:
+```
+podman run -p 3000:3000 -p 4317:4317 -p 4318:4318 --rm -it docker.io/grafana/otel-lgtm
+```
+
+Using aspire dashboard with the provided env template apps/api/env-template:
+```
+cp apps/api/env-template apps/api/.env
+
+podman run --rm -it -d \
+    -p 18888:18888 \
+    -p 18890:18890 \
+    -p 4317:18889 \
+    --name aspire-dashboard \
+    mcr.microsoft.com/dotnet/aspire-dashboard:9.3
+
+pnpm run dev
+```
+
 ## License
 
 The source code is under MIT License.
@@ -127,49 +168,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-
-# Cosmosdb emulation
-
-```
-docker pull mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview
-docker run --detach --publish 8081:8081 --publish 1234:1234 mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview
-```
-
-```
-podman pull mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview
-podman run --detach --publish 8081:8081 --publish 1234:1234 \
-mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview
-```
-
-http://localhost:1234/
-
-
-pnpm exec ts-node cosmos.ts
-
-
-# Trace
-
-Use of zipkin2 
-
-```
-podman pull openzipkin/zipkin
-
-podman run -d -p 9411:9411 \
- -e JAVA_OPTS="-Dlogging.level.zipkin2=DEBUG" \
- openzipkin/zipkin 
-```
-
-
-# Tracing
-
-4317:18889 => GRPC
-18890:18890 => HTTP
-```
-podman run --rm -it -d \
-    -p 18888:18888 \
-    -p 18890:18890 \
-    -p 4317:18889 \
-    --name aspire-dashboard \
-    mcr.microsoft.com/dotnet/aspire-dashboard:9.0
-```

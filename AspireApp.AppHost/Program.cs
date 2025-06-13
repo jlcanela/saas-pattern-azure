@@ -9,15 +9,6 @@ var builder = DistributedApplication.CreateBuilder(args);
 var cosmos = builder.AddAzureCosmosDB("cosmos")
     .RunAsPreviewEmulator(emulator =>
     {
-        // emulator
-        //     //.WithGatewayPort(8081) // Main HTTPS port
-        //     .WithDataExplorer(1234) // Data Explorer port
-        //     .WithHttpsEndpoint(targetPort: 8081, name: "https", isProxied: false)
-        //     .WithArgs(
-        //         "--protocol", "https",
-        //         "--enable-explorer", "true" // Explicitly enable explorer (optional)
-        //     )
-        //     .WithHttpHealthCheck(path: "/"); // Health check endpoint
         emulator
         .WithHttpEndpoint(targetPort: 1234, name: "explorer-port", isProxied: true);
         //.WithLifetime(ContainerLifetime.Persistent);
@@ -32,7 +23,7 @@ var api = builder.AddPnpmApp(name: "Api",
     .WithExternalHttpEndpoints()
     .WithPnpmPackageInstallation()
     .WithReference(cosmos)
-    .WaitFor(cosmos); 
+    .WaitFor(cosmos);
 
 var web = builder.AddPnpmApp(name: "Web",
         workingDirectory: "..",

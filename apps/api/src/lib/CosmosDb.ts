@@ -11,8 +11,8 @@ export class DatabaseError extends Data.TaggedError("DatabaseError")<{
   }
 }
 
-function connectionParam(name: string): Effect.Effect<{ endpoint: string; key: string }, string>  {
-  
+function connectionParam(name: string): Effect.Effect<{ endpoint: string; key: string }, string> {
+
   const connectionStringName = `ConnectionStrings__${name}`;
   const connectionString = process.env[connectionStringName]
   const cosmosEndpoint = process.env.COSMOS_ENDPOINT;
@@ -41,7 +41,7 @@ export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
     "Creating CosmosDb Service",
     Effect.gen(function* () {
       const { endpoint, key } = yield* pipe(
-        connectionParam("cosmos"), 
+        connectionParam("cosmos"),
         Effect.tapError((err) => Effect.log(err)),
       )
 
@@ -53,16 +53,10 @@ export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
         }
       }
 
-        yield* Effect.logInfo("Creating Cosmos Client", {
-    userId: 123,
-    action: "click",
-    value: Math.random()
-  })
       const client = new CosmosClient(connectionParams)
 
       function readAllDatabases() {
         return Effect.gen(function* () {
-          yield* Effect.log("readAllDatabases")
           const response = yield* Effect.tryPromise({
             try: () => client.databases.readAll().fetchAll(),
             catch: (error) => new DatabaseError({ error })
@@ -102,31 +96,6 @@ export class Cosmos extends Effect.Service<Cosmos>()("app/CosmosDb", {
 
       const projectContainer = yield* initializeProjectDB().pipe(Effect.tapError((e) => Console.log(e)))
 
-            /*
-        const querySpec = {
-    query: "SELECT * FROM Families f WHERE  f.lastName = @lastName",
-    parameters: [
-      {
-        name: "@lastName",
-        value: "Andersen",
-      },
-    ],
-  };
-
-  logStep("Query items in container '" + container.id + "'");
-  const { resources: results } = await container.items.query(querySpec).fetchAll();
-
-  if (results.length === 0) {
-    throw "No items found matching";
-  } else if (results.length > 1) {
-    throw "More than 1 item found matching";
-  }
-
-  const person = results[0];
-  console.log("The '" + person.id + "' family has lastName '" + person.lastName + "'");
-  console.log("The '" + person.id + "' family has " + person.children.length + " children '");
-
-      */
       function query() {
         const querySpec = {
           query: "SELECT c.id, c.project_name, c.project_objective, c.project_description, c.project_stakeholders FROM c",
